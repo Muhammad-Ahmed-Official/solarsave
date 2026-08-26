@@ -1,0 +1,66 @@
+name: solarsave
+
+services:
+  db:
+    image: postgres:18.3-alpine3.23
+    user: postgres
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - 127.0.0.1:5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 127.0.0.1:6379:6379
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build:
+      context: .
+      target: development
+    depends_on:
+      - db
+      - redis
+    ports:
+      - 127.0.0.1:4000:4000
+    env_file:
+      - .env
+    command: ["npm", "run", "dev"]
+    volumes:
+      - .:/app:cached
+    develop:
+      watch:
+        - path: ./src
+          target: /app/src
+          action: sync+restart
+        - path: package.json
+          target: /app/package.json
+          action: rebuild
+
+  worker:
+    build:
+      context: .
+      target: development
+    depends_on:
+      - redis
+    env_file:
+      - .env
+    command: ["npm", "run", "worker:dev"]
+    volumes:
+      - .:/app:cached
+    develop:
+      watch:
+        - path: ./src
+          target: /app/src
+          action: sync+restart
+        - path: package.json
+          target: /app/package.json
+          action: rebuild
+
+volumes:
+  postgres_data:
+  redis_data:
