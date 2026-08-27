@@ -202,3 +202,23 @@
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * Panel surface for the full-bleed map layout: the map is the ground, so
+ * panels have to sit on top of aerial imagery without losing their text.
+ *
+ * Opaque is the safe default. The translucent tint is only worth it when the
+ * blur behind it will actually happen — without one, a thin panel over aerial
+ * imagery is unreadable — so the two are enabled together, not separately.
+ * The prefixed property is left to the compiler rather than written by hand.
+ */
+@utility glass {
+  background-color: var(--panel);
+  backdrop-filter: blur(14px) saturate(1.1);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass {
+    background-color: color-mix(in oklab, var(--panel) 82%, transparent);
+  }
+}

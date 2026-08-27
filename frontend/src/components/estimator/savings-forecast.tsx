@@ -9,7 +9,7 @@ export function SavingsForecast({ r, tariff }: { r: SolarResult; tariff: number 
   const maxGrid = Math.max(r.years[r.years.length - 1]!.grid, r.systemCost);
 
   return (
-    <section className="overflow-hidden rounded-xl bg-[image:var(--gradient-panel)] ring-1 ring-line shadow-[var(--shadow-soft)]">
+    <section className="overflow-hidden rounded-xl glass ring-1 ring-line shadow-[var(--shadow-soft)]">
       <div className="flex items-center justify-between border-b border-line/70 px-4 py-3">
         <h2 className="num text-[10px] uppercase tracking-[0.18em] text-mute">Savings forecast</h2>
         <div className="num flex items-center gap-1.5 text-[10px] uppercase tracking-[0.14em] text-teal">

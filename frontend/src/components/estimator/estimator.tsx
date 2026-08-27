@@ -29,7 +29,7 @@ function Metric({
   pending?: boolean;
 }) {
   return (
-    <div className="rounded-lg bg-[image:var(--gradient-panel)] px-3.5 py-3 ring-1 ring-line shadow-[var(--shadow-soft)]">
+    <div className="rounded-lg glass px-3.5 py-3 ring-1 ring-line shadow-[var(--shadow-soft)]">
       <div className="num text-[10px] uppercase tracking-[0.16em] text-mute">{label}</div>
       {pending ? (
         <div className="mt-1.5 h-6 w-16 animate-pulse rounded bg-line" />
@@ -101,7 +101,7 @@ function Panel({
   children: ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-xl bg-[image:var(--gradient-panel)] ring-1 ring-line shadow-[var(--shadow-soft)]">
+    <section className="overflow-hidden rounded-xl glass ring-1 ring-line shadow-[var(--shadow-soft)]">
       <div className="flex items-center justify-between gap-3 border-b border-line/70 px-4 py-3">
         <h2 className="num text-[10px] uppercase tracking-[0.18em] text-mute">{title}</h2>
         {action}
@@ -153,7 +153,12 @@ export function Estimator() {
     [place?.state, place?.country].filter(Boolean).join(", ") || place?.county || "—";
 
   return (
-    <div className="min-h-dvh bg-dusk bg-[image:var(--gradient-page)] bg-fixed text-paper">
+    <div className="relative min-h-dvh text-paper">
+      {/* The map is the ground the tool stands on rather than a widget inside
+          it: everything below floats over a live view of the roof. It fixes
+          itself to the viewport and owns its own layers. */}
+      <MapPanel place={place} />
+
       <a
         href="#estimate"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-panel focus:px-4 focus:py-2 focus:text-sm focus:ring-1 focus:ring-line"
@@ -161,7 +166,7 @@ export function Estimator() {
         Skip to the estimate
       </a>
 
-      <nav className="sticky top-0 z-30 border-b border-line bg-[image:var(--gradient-panel)]/90 backdrop-blur">
+      <nav className="sticky top-0 z-30 border-b border-line glass">
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:h-16 lg:flex-nowrap lg:gap-4 lg:py-0 lg:px-8">
           <div className="flex shrink-0 items-center gap-3">
             <div className="grid size-9 place-items-center rounded-lg bg-[image:var(--gradient-solar)] ring-1 ring-sage/50">
@@ -196,63 +201,71 @@ export function Estimator() {
         </div>
       </nav>
 
-      <div id="estimate" className="mx-auto max-w-[1440px] px-4 py-5 sm:px-6 lg:px-8">
-        <header className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Metric
-            label="GHI · annual"
-            value={ghi ? ghi.annualKwhPerM2.toLocaleString("en-US") : "—"}
-            unit="kWh/m²yr"
-            pending={loading}
-          />
-          <Metric
-            label="Peak sun hours"
-            value={r ? r.peakSunHours.toFixed(1) : "—"}
-            unit="h/day"
-            pending={loading}
-          />
-          <Metric
-            label="Array capacity"
-            value={r ? r.capacityKw.toFixed(1) : "—"}
-            unit="kW"
-            pending={loading}
-          />
-          <Metric label="Region" value={region} pending={loading} />
-        </header>
+      <div
+        id="estimate"
+        className="relative z-10 mx-auto max-w-[1440px] px-4 pb-24 sm:px-6 lg:px-8"
+      >
+        {/* Narrow screens have no room for a side rail, so the panels scroll up
+            over the map. Leave it a window to be seen through first. */}
+        <div aria-hidden className="h-[38vh] lg:hidden" />
 
-        {/* One slot carries every non-result state so the page never jumps. */}
-        {!place ? (
-          <EmptyState />
-        ) : state.status === "error" ? (
-          <ErrorState message={state.message} onRetry={refresh} />
-        ) : state.status === "ready" && !ghi ? (
-          <ErrorState
-            message="The service answered for this location but reported no irradiance figure, so a savings estimate is not possible here."
-            onRetry={refresh}
-          />
-        ) : null}
+        {/* The grid is transparent to the pointer so the map stays draggable in
+            the gaps between panels; each panel opts back in. */}
+        <div className="pointer-events-none grid grid-cols-1 gap-4 pt-4 lg:grid-cols-12">
+          <div className="pointer-events-auto flex flex-col gap-4 lg:col-span-4">
+            <header className="grid grid-cols-2 gap-3">
+              <Metric
+                label="GHI · annual"
+                value={ghi ? ghi.annualKwhPerM2.toLocaleString("en-US") : "—"}
+                unit="kWh/m²yr"
+                pending={loading}
+              />
+              <Metric
+                label="Peak sun hours"
+                value={r ? r.peakSunHours.toFixed(1) : "—"}
+                unit="h/day"
+                pending={loading}
+              />
+              <Metric
+                label="Array capacity"
+                value={r ? r.capacityKw.toFixed(1) : "—"}
+                unit="kW"
+                pending={loading}
+              />
+              <Metric label="Region" value={region} pending={loading} />
+            </header>
 
-        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-12">
-          <div className="flex flex-col gap-4 lg:col-span-7">
-            <Panel
-              title="Location · Live map"
-              action={
-                place ? (
-                  <span className="num text-[11px] text-teal">
+            {/* One slot carries every non-result state so the rail never jumps. */}
+            {!place ? (
+              <EmptyState />
+            ) : state.status === "error" ? (
+              <ErrorState message={state.message} onRetry={refresh} />
+            ) : state.status === "ready" && !ghi ? (
+              <ErrorState
+                message="The service answered for this location but reported no irradiance figure, so a savings estimate is not possible here."
+                onRetry={refresh}
+              />
+            ) : null}
+
+            {/* The map now carries the location visually, so this is only the
+                caption that names what the camera is pointed at. */}
+            {place ? (
+              <section className="glass rounded-xl px-4 py-3 ring-1 ring-line shadow-[var(--shadow-soft)]">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h2 className="num text-[10px] uppercase tracking-[0.18em] text-mute">
+                    In frame
+                  </h2>
+                  <span className="num shrink-0 text-[11px] text-teal">
                     {Math.abs(place.latitude).toFixed(4)}° {place.latitude >= 0 ? "N" : "S"},{" "}
                     {Math.abs(place.longitude).toFixed(4)}° {place.longitude >= 0 ? "E" : "W"}
                   </span>
-                ) : null
-              }
-            >
-              <MapPanel place={place} />
-              {place ? (
-                <p className="border-t border-line/70 px-4 py-2.5 text-xs text-mute">
-                  <span className="text-paper">{place.title}</span>
-                  <span className="mx-1.5">·</span>
+                </div>
+                <p className="mt-1.5 truncate text-sm text-paper">{place.title}</p>
+                <p className="truncate text-xs text-mute" title={place.displayName}>
                   {place.displayName}
                 </p>
-              ) : null}
-            </Panel>
+              </section>
+            ) : null}
 
             <Panel title="System configuration">
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 px-4 py-5 sm:grid-cols-2">
@@ -302,12 +315,16 @@ export function Estimator() {
             </Panel>
           </div>
 
-          <div className="self-start lg:col-span-5 lg:sticky lg:top-20">
+          {/* Deliberately empty: the centre column is the one strip of the
+              viewport that stays map at every desktop width. */}
+          <div aria-hidden className="hidden lg:col-span-4 lg:block" />
+
+          <div className="pointer-events-auto self-start lg:col-span-4 lg:sticky lg:top-20">
             {r && ghi ? (
               <div className="space-y-3">
                 <SavingsForecast r={r} tariff={tariff} />
 
-                <details className="group rounded-xl bg-[image:var(--gradient-panel)] px-4 py-3 ring-1 ring-line">
+                <details className="group rounded-xl glass px-4 py-3 ring-1 ring-line">
                   <summary className="num flex cursor-pointer list-none items-center justify-between gap-2 text-[10px] uppercase tracking-[0.16em] text-mute marker:content-['']">
                     Data provenance
                     <svg
@@ -372,7 +389,7 @@ export function Estimator() {
 
 function EmptyState() {
   return (
-    <p className="mt-4 rounded-xl bg-[image:var(--gradient-panel)] px-4 py-3 text-sm text-mute ring-1 ring-line">
+    <p className="rounded-xl glass px-4 py-3 text-sm text-mute ring-1 ring-line">
       Search any address above to pull its solar irradiance and model 25 years of production,
       savings and payback.
     </p>
@@ -383,7 +400,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
   return (
     <div
       role="alert"
-      className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[image:var(--gradient-panel)] px-4 py-3 ring-1 ring-destructive/40"
+      className="flex flex-wrap items-center justify-between gap-3 rounded-xl glass px-4 py-3 ring-1 ring-destructive/40"
     >
       <p className="text-sm text-paper">{message}</p>
       <button
@@ -399,7 +416,7 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
 
 function ForecastPlaceholder({ loading, hasPlace }: { loading: boolean; hasPlace: boolean }) {
   return (
-    <section className="rounded-xl bg-[image:var(--gradient-panel)] p-4 ring-1 ring-line shadow-[var(--shadow-soft)]">
+    <section className="rounded-xl glass p-4 ring-1 ring-line shadow-[var(--shadow-soft)]">
       <h2 className="num text-[10px] uppercase tracking-[0.18em] text-mute">Savings forecast</h2>
 
       {loading ? (
