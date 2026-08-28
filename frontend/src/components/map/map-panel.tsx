@@ -211,7 +211,7 @@ export function MapPanel({ place }: { place: GeocodedPlace | null }) {
         </Map>
 
         {!place ? (
-          <div className="pointer-events-none absolute inset-0 grid place-items-center bg-dusk/45 backdrop-blur-[1px]">
+          <div className="pointer-events-none absolute inset-0 grid place-items-center bg-dusk/45 backdrop-blur-[10px]">
             <p className="num glass rounded-md px-3 py-2 text-[11px] uppercase tracking-[0.14em] text-mute ring-1 ring-line">
               Search an address to begin
             </p>
