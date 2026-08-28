@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
-import { reverseGeocode, searchPlaces, type GeocodedPlace } from "@/lib/geocoding";
+import {
+  reverseGeocode,
+  searchPlaces,
+  type GeocodedPlace,
+} from "@/lib/geocoding";
 
 /** Below this, suggestions are noise and the geocoder is being spammed. */
 const MIN_QUERY_LENGTH = 3;
@@ -38,7 +42,8 @@ export function AddressSearch({
   const trimmed = query.trim();
   const isSearchable = trimmed.length >= MIN_QUERY_LENGTH;
   const places = state.status === "results" ? state.places : [];
-  const showList = isOpen && isSearchable && (places.length > 0 || state.status === "loading");
+  const showList =
+    isOpen && isSearchable && (places.length > 0 || state.status === "loading");
 
   useEffect(() => {
     if (!isSearchable) {
@@ -62,7 +67,8 @@ export function AddressSearch({
         if (!controller.signal.aborted) {
           setState({
             status: "error",
-            message: "Could not reach the address service. Check your connection and retry.",
+            message:
+              "Could not reach the address service. Check your connection and retry.",
           });
           setActiveIndex(-1);
         }
@@ -178,29 +184,41 @@ export function AddressSearch({
 
   async function useMyLocation() {
     if (!("geolocation" in navigator)) {
-      setState({ status: "error", message: "This browser cannot share your location." });
+      setState({
+        status: "error",
+        message: "This browser cannot share your location.",
+      });
       return;
     }
 
     setLocating(true);
     try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 12_000,
-        });
-      });
+      const position = await new Promise<GeolocationPosition>(
+        (resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 12_000,
+          });
+        },
+      );
 
-      const place = await reverseGeocode(position.coords.latitude, position.coords.longitude);
+      const place = await reverseGeocode(
+        position.coords.latitude,
+        position.coords.longitude,
+      );
       if (place) {
         choose(place);
       } else {
-        setState({ status: "error", message: "Found you, but could not name that spot." });
+        setState({
+          status: "error",
+          message: "Found you, but could not name that spot.",
+        });
       }
     } catch {
       setState({
         status: "error",
-        message: "Could not get your location. You can still search for an address.",
+        message:
+          "Could not get your location. You can still search for an address.",
       });
     } finally {
       setLocating(false);
@@ -230,9 +248,19 @@ export function AddressSearch({
       </label>
 
       <div className="flex items-center gap-2 rounded-lg bg-panel2 px-3 py-2 ring-1 ring-line focus-within:ring-2 focus-within:ring-solar">
-        <svg viewBox="0 0 24 24" fill="none" className="size-4 shrink-0 text-mute" aria-hidden>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          className="size-4 shrink-0 text-mute"
+          aria-hidden
+        >
           <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-          <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <path
+            d="m20 20-3.5-3.5"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
         </svg>
 
         <input
@@ -252,7 +280,9 @@ export function AddressSearch({
           aria-expanded={showList}
           aria-controls={showList ? listboxId : undefined}
           aria-autocomplete="list"
-          aria-activedescendant={showList && activeIndex >= 0 ? optionId(activeIndex) : undefined}
+          aria-activedescendant={
+            showList && activeIndex >= 0 ? optionId(activeIndex) : undefined
+          }
           aria-describedby={`${baseId}-hint`}
           /* 16px on small screens stops iOS Safari zooming in on focus. */
           className="w-full min-w-0 bg-transparent text-base text-paper outline-none placeholder:text-mute sm:text-sm"
@@ -279,7 +309,11 @@ export function AddressSearch({
             className="shrink-0 rounded p-0.5 text-mute hover:text-solar disabled:opacity-50"
           >
             {locating ? (
-              <svg viewBox="0 0 24 24" className="size-4 animate-spin" aria-hidden>
+              <svg
+                viewBox="0 0 24 24"
+                className="size-4 animate-spin"
+                aria-hidden
+              >
                 <circle
                   cx="12"
                   cy="12"
@@ -298,8 +332,19 @@ export function AddressSearch({
                 />
               </svg>
             ) : (
-              <svg viewBox="0 0 24 24" fill="none" className="size-4" aria-hidden>
-                <circle cx="12" cy="12" r="7" stroke="currentColor" strokeWidth="2" />
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="size-4"
+                aria-hidden
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="7"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
                 <circle cx="12" cy="12" r="1.5" fill="currentColor" />
                 <path
                   d="M12 2v3M12 19v3M2 12h3M19 12h3"
@@ -353,12 +398,9 @@ export function AddressSearch({
                   id={optionId(index)}
                   role="option"
                   aria-selected={index === activeIndex}
-                  onMouseMove={() => setActiveIndex(index)}
-                  // Fires before blur, so the click is never lost to the list
-                  // closing first.
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    choose(place);
+                  onClick={() => {
+                    setQuery(place.title);
+                    setIsOpen(false);
                   }}
                   className={`flex cursor-pointer items-start gap-3 px-3 py-2 ${
                     index === activeIndex ? "bg-panel2" : ""
@@ -377,10 +419,18 @@ export function AddressSearch({
                       stroke="currentColor"
                       strokeWidth="2"
                     />
-                    <circle cx="12" cy="10" r="2.4" stroke="currentColor" strokeWidth="2" />
+                    <circle
+                      cx="12"
+                      cy="10"
+                      r="2.4"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
                   </svg>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-paper">{place.title}</span>
+                    <span className="block truncate text-sm text-paper">
+                      {place.title}
+                    </span>
                     <span className="mt-0.5 block truncate text-[11px] text-mute">
                       {place.subtitle}
                     </span>

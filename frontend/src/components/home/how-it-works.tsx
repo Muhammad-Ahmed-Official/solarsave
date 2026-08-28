@@ -4,7 +4,7 @@ const STEPS = [
   {
     step: 1,
     title: "Search for your home",
-    body: "We find the property, map the roof shape, and anchor the estimate to your local solar resource.",
+    body: "We find the property, get the solar irradiance and other environmental paramters, and anchor the estimate to your local solar resource.",
     accent: "#f4a62a",
     kind: "search" as const,
   },
@@ -18,7 +18,7 @@ const STEPS = [
   {
     step: 3,
     title: "Compare finance options",
-    body: "Review the paths available for your system and see how the costs compare over time.",
+    body: "Review the paths available for your system and see how the costs compare over time. ",
     accent: "#f0c94d",
     kind: "finance" as const,
   },

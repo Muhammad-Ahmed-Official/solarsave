@@ -10,6 +10,8 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { searchPlaces, type GeocodedPlace } from "@/lib/geocoding";
+import { buildEstimateHref } from "@/lib/estimate-location";
+import { WorkflowModal } from "@/components/ui/modal";
 import { LuX } from "react-icons/lu";
 
 const MIN_QUERY_LENGTH = 3;
@@ -21,12 +23,19 @@ type SearchState =
   | { status: "error"; message: string }
   | { status: "results"; places: GeocodedPlace[] };
 
+type WorkflowState =
+  | { status: "idle" }
+  | { status: "pending"; title: string; message: string }
+  | { status: "error"; title: string; message: string };
+
 export function AddressSearch() {
   const router = useRouter();
   const [query, setQuery] = useState("");
+  const [selectedPlace, setSelectedPlace] = useState<GeocodedPlace | null>(null);
   const [state, setState] = useState<SearchState>({ status: "idle" });
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [workflow, setWorkflow] = useState<WorkflowState>({ status: "idle" });
 
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -38,6 +47,8 @@ export function AddressSearch() {
   const isSearchable = trimmed.length >= MIN_QUERY_LENGTH;
   const places = state.status === "results" ? state.places : [];
   const showList = isOpen && isSearchable && (state.status === "loading" || places.length > 0);
+  const canSearch = selectedPlace !== null;
+  const isSubmitting = workflow.status === "pending";
 
   useEffect(() => {
     if (!isSearchable) {
@@ -53,6 +64,7 @@ export function AddressSearch() {
         if (controller.signal.aborted) {
           return;
         }
+
         setState({ status: "results", places: found });
         setActiveIndex(found.length > 0 ? 0 : -1);
       } catch {
@@ -90,10 +102,43 @@ export function AddressSearch() {
   function choosePlace(place: GeocodedPlace) {
     const address = place.displayName || place.title;
     setQuery(address);
+    setSelectedPlace(place);
     setState({ status: "idle" });
     setActiveIndex(-1);
     setIsOpen(false);
-    router.push(`/estimate?address=${encodeURIComponent(address)}`);
+  }
+
+  async function submitAnalysis(place: GeocodedPlace) {
+    const response = await fetch("/api/fortyguard/env-params", {
+      method: "POST",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        latitude: place.latitude,
+        longitude: place.longitude,
+      }),
+    });
+
+    const payload = (await response.json()) as
+      | { ok: true; activityId: string }
+      | { ok: false; message?: string };
+
+    if (!response.ok || !payload.ok) {
+      const errorMessage =
+        "message" in payload && payload.message
+          ? payload.message
+          : "The solar analysis could not be started.";
+      throw new Error(errorMessage);
+    }
+
+    if (!payload.activityId) {
+      throw new Error("FortyGuard did not return a task id.");
+    }
+
+    router.push(buildEstimateHref(payload.activityId, place));
   }
 
   async function submitSearch(event: FormEvent<HTMLFormElement>) {
@@ -104,24 +149,31 @@ export function AddressSearch() {
       return;
     }
 
-    const activePlace = places[activeIndex] ?? places[0];
-    if (activePlace) {
-      choosePlace(activePlace);
+    if (isSubmitting || !selectedPlace) {
       return;
     }
 
+    setWorkflow({
+      status: "pending",
+      title: "Preparing your solar analysis",
+      message: "We are finding your address and starting the FortyGuard task.",
+    });
+
     try {
-      const found = await searchPlaces(trimmed);
-      const chosen = found[0];
-      const address = chosen?.displayName || chosen?.title || trimmed;
-      router.push(`/estimate?address=${encodeURIComponent(address)}`);
-    } catch {
-      router.push(`/estimate?address=${encodeURIComponent(trimmed)}`);
+      await submitAnalysis(selectedPlace);
+    } catch (error) {
+      setWorkflow({
+        status: "error",
+        title: "We could not start the analysis",
+        message:
+          error instanceof Error ? error.message : "Please try again with a different address.",
+      });
     }
   }
 
   function updateQuery(value: string) {
     setQuery(value);
+    setSelectedPlace(null);
     setIsOpen(true);
 
     if (value.trim().length < MIN_QUERY_LENGTH) {
@@ -131,7 +183,12 @@ export function AddressSearch() {
   }
 
   function clearInput() {
+    if (isSubmitting) {
+      return;
+    }
+
     setQuery("");
+    setSelectedPlace(null);
     setState({ status: "idle" });
     setActiveIndex(-1);
     setIsOpen(false);
@@ -210,7 +267,7 @@ export function AddressSearch() {
             spellCheck={false}
             enterKeyHint="search"
             value={query}
-            placeholder="Search address, city, or zip"
+            placeholder="Search address, county or city"
             onChange={(event) => updateQuery(event.target.value)}
             onFocus={() => setIsOpen(true)}
             onKeyDown={onKeyDown}
@@ -239,7 +296,7 @@ export function AddressSearch() {
           <button
             type="submit"
             className="rounded-full bg-[#4a7c46] px-4 py-2.5 text-sm font-medium text-white shadow-[0_14px_30px_-18px_rgba(74,124,70,0.7)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={!trimmed}
+            disabled={!canSearch || isSubmitting}
           >
             Search
           </button>
@@ -251,7 +308,7 @@ export function AddressSearch() {
       ) : null}
 
       {showList ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-40 overflow-hidden rounded-[18px] max-h-50 border border-black/10 bg-white shadow-[0_18px_45px_-26px_rgba(79,62,30,0.45)]">
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-40 max-h-50 overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_18px_45px_-26px_rgba(79,62,30,0.45)]">
           {state.status === "loading" ? (
             <div className="space-y-1.5 p-2.5" aria-hidden>
               {[0, 1, 2].map((row) => (
@@ -277,17 +334,18 @@ export function AddressSearch() {
                   id={optionId(index)}
                   role="option"
                   aria-selected={index === activeIndex}
-                  onClick={() => {
-                    setQuery(place.displayName)
-                    setIsOpen(false)
-                    }
-                }
+                  onClick={() => choosePlace(place)}
                   className={`cursor-pointer px-4 py-2.5 transition ${
                     index === activeIndex ? "bg-[#f6f1e6]" : "hover:bg-[#faf7f0]"
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden className="mt-0.5 size-4 shrink-0 text-[#4a7c46]">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden
+                      className="mt-0.5 size-4 shrink-0 text-[#4a7c46]"
+                    >
                       <path
                         d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11Z"
                         stroke="currentColor"
@@ -310,6 +368,45 @@ export function AddressSearch() {
           )}
         </div>
       ) : null}
+
+      <WorkflowModal
+        open={workflow.status === "pending"}
+        title={workflow.status === "pending" ? workflow.title : "Preparing your solar analysis"}
+        message={
+          workflow.status === "pending"
+            ? workflow.message
+            : "We are finding your address and starting the FortyGuard task."
+        }
+        tone="pending"
+      >
+        <div className="flex items-center gap-3 rounded-[20px] bg-[#f8f4eb] px-4 py-3">
+          <span className="size-4 animate-spin rounded-full border-2 border-[#4a7c46] border-t-transparent" />
+          <div className="text-sm text-[#6d6557]">
+            Please keep this window open while we prepare your estimate.
+          </div>
+        </div>
+      </WorkflowModal>
+
+      <WorkflowModal
+        open={workflow.status === "error"}
+        title={workflow.status === "error" ? workflow.title : "We could not start the analysis"}
+        message={
+          workflow.status === "error"
+            ? workflow.message
+            : "Please try again with a different address."
+        }
+        tone="error"
+        dismissible={true}
+        onClose={() => setWorkflow({ status: "idle" })}
+      >
+        <button
+          type="button"
+          onClick={() => setWorkflow({ status: "idle" })}
+          className="rounded-full bg-[#4a7c46] px-4 py-2.5 text-sm font-medium text-white"
+        >
+          Close
+        </button>
+      </WorkflowModal>
     </div>
   );
 }

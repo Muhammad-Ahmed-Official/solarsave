@@ -60,7 +60,7 @@ export function useGhi(place: GeocodedPlace | null) {
 
   const refresh = useCallback(() => {
     if (place) {
-      void fetchFor(place);
+      fetchFor(place);
     }
   }, [fetchFor, place]);
 

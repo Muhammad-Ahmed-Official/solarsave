@@ -12,7 +12,7 @@ export function HomeHero() {
             Explore estimated solar potential of your community
           </h1>
           <p className="mx-auto mt-4 max-w-3xl text-sm leading-7 text-[#6b6456] sm:text-base">
-            Enter a state, county, city, or zip code to see a solar estimate for
+            Enter an address to see a solar estimate for
             the area, based on the amount of usable sunlight and roof space.
           </p>
         </div>

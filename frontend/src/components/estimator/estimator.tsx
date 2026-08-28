@@ -126,7 +126,7 @@ export function Estimator({ initialAddress = "" }: { initialAddress?: string }) 
   const handleSelect = useCallback(
     (next: GeocodedPlace) => {
       setPlace(next);
-      void fetchFor(next);
+      fetchFor(next);
     },
     [fetchFor]
   );
