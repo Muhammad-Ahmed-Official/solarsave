@@ -16,11 +16,13 @@ type SearchState =
 export function AddressSearch({
   selectedPlace,
   onSelect,
+  initialQuery = "",
 }: {
   selectedPlace: GeocodedPlace | null;
   onSelect: (place: GeocodedPlace) => void;
+  initialQuery?: string;
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [state, setState] = useState<SearchState>({ status: "idle" });
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);

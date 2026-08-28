@@ -111,7 +111,7 @@ function Panel({
   );
 }
 
-export function Estimator() {
+export function Estimator({ initialAddress = "" }: { initialAddress?: string }) {
   const [place, setPlace] = useState<GeocodedPlace | null>(null);
   const [area, setArea] = useState<number>(SYSTEM_DEFAULTS.area);
   const [efficiency, setEfficiency] = useState<number>(SYSTEM_DEFAULTS.efficiency);
@@ -183,7 +183,12 @@ export function Estimator() {
           {/* Search is the primary action, so it takes the centre and the most
               width at every breakpoint. */}
           <div className="order-last w-full lg:order-none lg:mx-auto lg:max-w-xl">
-            <AddressSearch selectedPlace={place} onSelect={handleSelect} />
+            <AddressSearch
+              key={initialAddress || "estimate-search"}
+              selectedPlace={place}
+              onSelect={handleSelect}
+              initialQuery={initialAddress}
+            />
           </div>
 
           <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">

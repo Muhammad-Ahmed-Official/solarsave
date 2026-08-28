@@ -1,8 +1,5 @@
 /**
  * Address lookup via OpenStreetMap Nominatim.
- *
- * Runs in the browser: there is no key to protect, and keeping it client-side
- * means suggestions are not gated behind a server round-trip.
  */
 
 export interface GeocodedPlace {

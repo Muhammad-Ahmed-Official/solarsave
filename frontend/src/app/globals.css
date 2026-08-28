@@ -63,6 +63,10 @@
   --shadow-soft: 0 12px 34px -18px color-mix(in oklab, var(--teal) 55%, transparent);
 }
 
+button {
+  cursor: pointer;
+}
+
 /*
  * Dark ramp for the same names: hues are held, lightness is inverted and
  * chroma pulled in slightly so the accents stay legible against a dark ground.
@@ -152,6 +156,18 @@
     background-color: var(--line);
     border-radius: 999px;
   }
+}
+
+@utility background-rad-1 {
+  background: radial-gradient(circle at 20% 10%, rgba(255, 212, 103, 0.22), transparent 24%), radial-gradient(circle at 85% 20%, rgba(106, 163, 120, 0.16), transparent 20%), linear-gradient(180deg, #faf6ee 0%, #f5f0e6 43%, #edf3e9 100%);
+}
+
+@utility white-background {
+  background: linear-gradient(135deg, #f2c94c 0%, #efb04c 48%, #8fc46f 100%);
+}
+
+@utility background-green-rad {
+   background: linear-gradient(180deg, #1d3126 0%, #23392c 28%, #314a38 100%);
 }
 
 /* MapLibre chrome, re-skinned with the palette above: the library ships a
