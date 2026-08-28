@@ -1,7 +1,7 @@
-import { ExampleReportsSection } from "@/components/home/home-example-reports";
 import { FineTuneSection } from "@/components/home/home-fine-tune";
 import { HomeNav } from "@/components/home/home-nav";
 import { HomeHero } from "@/components/home/home-hero";
+import { HowItWorksSection } from "@/components/home/how-it-works";
 
 export default function Home() {
   return (
@@ -19,8 +19,10 @@ export default function Home() {
       <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-4 pb-12 pt-4 sm:px-6 lg:px-8">
         <HomeNav />
         <HomeHero />
-        <ExampleReportsSection />
+        <HowItWorksSection /> 
+        {/* <HowItWorksSection />
         <FineTuneSection />
+        <TariffChartSection /> */}
       </div>
     </main>
   );

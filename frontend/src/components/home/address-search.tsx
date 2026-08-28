@@ -3,7 +3,6 @@
 import {
   useEffect,
   useId,
-  useMemo,
   useRef,
   useState,
   type KeyboardEvent,
@@ -11,6 +10,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { searchPlaces, type GeocodedPlace } from "@/lib/geocoding";
+import { LuX } from "react-icons/lu";
 
 const MIN_QUERY_LENGTH = 3;
 const DEBOUNCE_MS = 350;
@@ -186,10 +186,10 @@ export function AddressSearch() {
   }
 
   return (
-    <div ref={rootRef} className="relative w-full max-w-2xl">
+    <div ref={rootRef} className="relative w-full max-w-2xl overflow-visible">
       <form
         onSubmit={submitSearch}
-        className="overflow-hidden rounded-3xl border border-black/10 bg-white shadow-[0_20px_48px_-30px_rgba(79,62,30,0.45)]"
+        className="overflow-visible rounded-3xl border border-black/10 bg-white shadow-[0_20px_48px_-30px_rgba(79,62,30,0.45)]"
       >
         <div className="flex items-center gap-3 px-4 py-3 sm:px-5">
           <svg viewBox="0 0 24 24" fill="none" className="size-4 shrink-0 text-[#8d856f]" aria-hidden>
@@ -221,15 +221,20 @@ export function AddressSearch() {
             className="w-full min-w-0 bg-transparent text-[15px] text-[#241f18] outline-none placeholder:text-[#948a77] sm:text-base"
           />
 
-          {query ? (
-            <button
-              type="button"
-              onClick={clearInput}
-              className="rounded-full px-2.5 py-1 text-sm font-medium text-[#756c59] transition hover:bg-[#f5efe4] hover:text-[#2c261f]"
-            >
-              Clear
-            </button>
-          ) : null}
+          <div className="flex size-8 shrink-0 items-center justify-center">
+            {query ? (
+              <button
+                type="button"
+                onClick={clearInput}
+                aria-label="Clear address"
+                className="grid size-8 place-items-center rounded-full text-[#756c59] transition hover:bg-[#f5efe4] hover:text-[#2c261f]"
+              >
+                <LuX size={16} />
+              </button>
+            ) : (
+              <span aria-hidden className="block size-8" />
+            )}
+          </div>
 
           <button
             type="submit"
@@ -246,11 +251,11 @@ export function AddressSearch() {
       ) : null}
 
       {showList ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-40 overflow-hidden rounded-[20px] border border-black/10 bg-white shadow-[0_18px_45px_-26px_rgba(79,62,30,0.45)]">
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-40 overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_18px_45px_-26px_rgba(79,62,30,0.45)]">
           {state.status === "loading" ? (
-            <div className="space-y-2 p-3" aria-hidden>
+            <div className="space-y-1.5 p-2.5" aria-hidden>
               {[0, 1, 2].map((row) => (
-                <div key={row} className="flex items-center gap-3 rounded-[16px] px-2 py-2">
+                <div key={row} className="flex items-center gap-3 rounded-[14px] px-2 py-2">
                   <span className="size-3 shrink-0 animate-pulse rounded-full bg-[#e7dcc8]" />
                   <span className="flex-1 space-y-1.5">
                     <span className="block h-2.5 w-2/5 animate-pulse rounded bg-[#e7dcc8]" />
@@ -264,7 +269,7 @@ export function AddressSearch() {
               id={listboxId}
               role="listbox"
               aria-label="Address suggestions"
-              className="scroll-slim max-h-72 overflow-y-auto py-1"
+              className="scroll-slim max-h-60 overflow-y-auto py-1"
             >
               {places.map((place, index) => (
                 <li
@@ -277,7 +282,7 @@ export function AddressSearch() {
                     event.preventDefault();
                     choosePlace(place);
                   }}
-                  className={`cursor-pointer px-4 py-3 transition ${
+                  className={`cursor-pointer px-4 py-2.5 transition ${
                     index === activeIndex ? "bg-[#f6f1e6]" : "hover:bg-[#faf7f0]"
                   }`}
                 >
