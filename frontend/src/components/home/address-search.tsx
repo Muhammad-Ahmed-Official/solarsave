@@ -251,7 +251,7 @@ export function AddressSearch() {
       ) : null}
 
       {showList ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-40 overflow-hidden rounded-[18px] border border-black/10 bg-white shadow-[0_18px_45px_-26px_rgba(79,62,30,0.45)]">
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-40 overflow-hidden rounded-[18px] max-h-50 border border-black/10 bg-white shadow-[0_18px_45px_-26px_rgba(79,62,30,0.45)]">
           {state.status === "loading" ? (
             <div className="space-y-1.5 p-2.5" aria-hidden>
               {[0, 1, 2].map((row) => (
@@ -277,11 +277,11 @@ export function AddressSearch() {
                   id={optionId(index)}
                   role="option"
                   aria-selected={index === activeIndex}
-                  onMouseMove={() => setActiveIndex(index)}
-                  onMouseDown={(event) => {
-                    event.preventDefault();
-                    choosePlace(place);
-                  }}
+                  onClick={() => {
+                    setQuery(place.displayName)
+                    setIsOpen(false)
+                    }
+                }
                   className={`cursor-pointer px-4 py-2.5 transition ${
                     index === activeIndex ? "bg-[#f6f1e6]" : "hover:bg-[#faf7f0]"
                   }`}

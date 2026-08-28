@@ -1,4 +1,3 @@
-import { FineTuneSection } from "@/components/home/home-fine-tune";
 import { HomeNav } from "@/components/home/home-nav";
 import { HomeHero } from "@/components/home/home-hero";
 import { HowItWorksSection } from "@/components/home/how-it-works";
@@ -20,9 +19,6 @@ export default function Home() {
         <HomeNav />
         <HomeHero />
         <HowItWorksSection /> 
-        {/* <HowItWorksSection />
-        <FineTuneSection />
-        <TariffChartSection /> */}
       </div>
     </main>
   );

@@ -19,7 +19,7 @@ function Card({
   children: ReactNode;
 }) {
   return (
-    <div className="rounded-[16px] border border-black/10 bg-white px-5 py-5 shadow-[0_18px_42px_-28px_rgba(93,76,38,0.42)]">
+    <div className="rounded-2xl border border-black/10 bg-white px-5 py-5 shadow-[0_18px_42px_-28px_rgba(93,76,38,0.42)]">
       <div className="text-[10px] uppercase tracking-[0.18em] text-[#8b816e]">{title}</div>
       {children}
     </div>
@@ -41,7 +41,7 @@ export function FineTuneSection() {
       </div>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
-        <Card title="What’s your average monthly electric bill?">
+        <Card title="What&apos;s your average monthly electric bill?">
           <p className="mt-2 max-w-md text-sm leading-6 text-[#71695a]">
             Use your bill to calculate how much electricity you use based on typical utility rates
             in your area.
