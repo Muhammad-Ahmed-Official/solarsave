@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { EstimateLocation } from "@/lib/estimate-location";
 import {
@@ -12,6 +13,7 @@ import { SolarSizeCard } from "@/components/estimate/sections/solar-size-card";
 import { EnvironmentalImpactSection } from "@/components/estimate/sections/environmental-impact-section";
 import { FinanceSection } from "@/components/estimate/sections/finance-section";
 import { ProviderCtaSection } from "@/components/estimate/sections/provider-cta-section";
+import { FallbackSection } from "./fallback";
 
 export function EstimateResultSections({ location }: { location: EstimateLocation }) {
   const defaultBill = useMemo(() => getDefaultBill(location), [location]);
@@ -28,7 +30,7 @@ export function EstimateResultSections({ location }: { location: EstimateLocatio
   );
 
   return (
-    <div className="relative z-10 bg-[image:var(--gradient-page)] pb-20 text-[#231f18]">
+    <div className="relative z-10 mx-auto max-w-7xl">
       <section className="mx-auto max-w-[1600px] px-4 pt-10 sm:px-6 lg:px-8">
         <h2 className="text-center text-2xl font-normal tracking-[-0.03em] text-[#231f18] sm:text-3xl">
           Fine-tune your information to find out how much you could save.

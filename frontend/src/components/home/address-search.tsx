@@ -294,16 +294,17 @@ export function AddressSearch() {
             )}
           </div>
 
-          {/* <button
+          <button
             type="submit"
             className="rounded-full bg-[#4a7c46] px-4 py-2.5 text-sm font-medium text-white shadow-[0_14px_30px_-18px_rgba(74,124,70,0.7)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={!canSearch || isSubmitting}
           >
             Search
-          </button> */}
-          <Link href={ "/estimate/12345"} >
+          </button>
+
+          {/* <Link href={ "/estimate/12345"} >
           estimate
-          </Link>
+          </Link> */}
         </div>
       </form>
 
