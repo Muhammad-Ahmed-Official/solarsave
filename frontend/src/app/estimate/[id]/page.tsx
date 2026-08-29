@@ -1,4 +1,5 @@
 import Result from "@/components/estimate/result";
+import { FallbackSection } from "@/components/estimate/sections/fallback";
 import { TaskStatusView } from "@/components/estimate/task-status-view";
 import {
   parseEstimateLocation,
@@ -22,6 +23,27 @@ export default async function EstimateTaskPage({
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const location = parseEstimateLocation(resolvedSearchParams);
 
-  return <Result activityId={id} location={location} />
-  // return <TaskStatusView activityId={id} location={location} />
+      const hasLocation = location.latitude !== null && location.longitude !== null;
+  const hasAnalysisResult = Boolean(location.placeId);
+
+    // const place = useMemo(() => {
+    //     return {
+    //         id: location.placeId,
+    //         displayName: location.title,
+    //         latitude: location.latitude,
+    //         longitude: location.longitude,
+    //         title: location.title,
+    //         subtitle: location.subtitle,
+    //     } as GeocodedPlace;
+    // }, [location]);
+
+      if (!hasLocation) {
+    return <FallbackSection reason="location" />;
+  }
+
+  if (!hasAnalysisResult) {
+    return <FallbackSection reason="analysis" />;
+  }
+
+  return <TaskStatusView activityId={id} location={location} />
 }

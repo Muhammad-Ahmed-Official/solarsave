@@ -6,6 +6,7 @@ import { WorkflowModal } from "@/components/ui/modal";
 import { EstimatePageShell } from "@/components/estimate/estimate-page-shell";
 import type { EstimateLocation } from "@/lib/estimate-location";
 import type { EstimateViewState } from "@/components/estimate/estimate-types";
+import Result from "./result";
 
 const POLL_INTERVAL_MS = 30_000;
 const MAX_ATTEMPTS = 5;
@@ -134,7 +135,9 @@ export function TaskStatusView({
 
   return (
     <>
-      <EstimatePageShell activityId={activityId} location={location} view={view} />
+      {/* <EstimatePageShell activityId={activityId} location={location} view={view} /> */}
+
+      <Result activityId={activityId} location={location} />
 
       <WorkflowModal
         open={view.status === "checking"}
