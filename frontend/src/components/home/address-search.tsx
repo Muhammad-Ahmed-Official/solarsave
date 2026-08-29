@@ -13,6 +13,7 @@ import { searchPlaces, type GeocodedPlace } from "@/lib/geocoding";
 import { buildEstimateHref } from "@/lib/estimate-location";
 import { WorkflowModal } from "@/components/ui/modal";
 import { LuX } from "react-icons/lu";
+import Link from "next/link";
 
 const MIN_QUERY_LENGTH = 3;
 const DEBOUNCE_MS = 350;
@@ -293,13 +294,16 @@ export function AddressSearch() {
             )}
           </div>
 
-          <button
+          {/* <button
             type="submit"
             className="rounded-full bg-[#4a7c46] px-4 py-2.5 text-sm font-medium text-white shadow-[0_14px_30px_-18px_rgba(74,124,70,0.7)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={!canSearch || isSubmitting}
           >
             Search
-          </button>
+          </button> */}
+          <Link href={ "/estimate/12345"} >
+          estimate
+          </Link>
         </div>
       </form>
 

@@ -1,3 +1,4 @@
+import Result from "@/components/estimate/result";
 import { TaskStatusView } from "@/components/estimate/task-status-view";
 import {
   parseEstimateLocation,
@@ -21,5 +22,6 @@ export default async function EstimateTaskPage({
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const location = parseEstimateLocation(resolvedSearchParams);
 
-  return <TaskStatusView activityId={id} location={location} />;
+  return <Result activityId={id} location={location} />
+  // return <TaskStatusView activityId={id} location={location} />
 }

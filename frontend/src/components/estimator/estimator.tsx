@@ -5,7 +5,6 @@ import { AddressSearch } from "@/components/estimator/address-search";
 import { SavingsForecast } from "@/components/estimator/savings-forecast";
 import { useGhi } from "@/components/estimator/use-ghi";
 import { MapPanel } from "@/components/map/map-panel";
-import { ThemeToggle } from "@/components/theme-toggle";
 import type { GeocodedPlace } from "@/lib/geocoding";
 import type { IrradianceBasis } from "@/lib/ghi";
 import { ASSUMED_PEAK_SUN_HOURS } from "@/lib/ghi";
@@ -191,8 +190,7 @@ export function Estimator({ initialAddress = "" }: { initialAddress?: string }) 
             />
           </div>
 
-          <div className="ml-auto flex shrink-0 items-center gap-2 lg:ml-0">
-            <ThemeToggle />
+          <div className="ml-auto shrink-0 lg:ml-0">
             <button
               type="button"
               onClick={refresh}

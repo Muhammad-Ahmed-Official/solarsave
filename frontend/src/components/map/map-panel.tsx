@@ -5,7 +5,6 @@ import { Map, Marker, ScaleControl, type MapRef } from "react-map-gl/maplibre";
 import { setWorkerUrl, type Map as MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { GeocodedPlace } from "@/lib/geocoding";
-import { useTheme } from "@/components/theme-provider";
 import { CONTEXT_STYLES, SATELLITE_STYLE, type Basemap } from "@/lib/map-styles";
 
 // Served from public/maplibre by the prebuild/predev copy script.
@@ -37,7 +36,6 @@ export function MapPanel({ place }: { place: GeocodedPlace | null }) {
   const [isReady, setIsReady] = useState(false);
   const [basemap, setBasemap] = useState<Basemap>("satellite");
   const [is3D, setIs3D] = useState(true);
-  const { resolvedTheme } = useTheme();
 
   // Read inside the arrival effect without making the camera re-run on every
   // toggle: tilting should change the pitch, not replay the whole flight.
@@ -194,7 +192,7 @@ export function MapPanel({ place }: { place: GeocodedPlace | null }) {
           minZoom={1}
           maxZoom={MAX_ZOOM}
           maxPitch={MAX_PITCH}
-          mapStyle={basemap === "satellite" ? SATELLITE_STYLE : CONTEXT_STYLES[resolvedTheme]}
+          mapStyle={basemap === "satellite" ? SATELLITE_STYLE : CONTEXT_STYLES.context}
           attributionControl={{ compact: true }}
           style={{ width: "100%", height: "100%" }}
         >

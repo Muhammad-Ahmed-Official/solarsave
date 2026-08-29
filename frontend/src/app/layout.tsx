@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
+import { Nav } from "@/components/nav";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -31,18 +31,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbefef" },
-    { media: "(prefers-color-scheme: dark)", color: "#151b18" },
-  ],
+  themeColor: "#fbefef",
 };
-
-/**
- * Applies the stored theme before first paint. Without this the page renders
- * light, then snaps to dark once React hydrates — the classic flash.
- * Deliberately tiny and dependency-free so it stays cheap to inline.
- */
-const NO_FLASH = `(function(){try{var p=localStorage.getItem('solarsave-theme');var d=p==='dark'||((!p||p==='system')&&matchMedia('(prefers-color-scheme: dark)').matches);var e=document.documentElement;e.classList.toggle('dark',d);e.style.colorScheme=d?'dark':'light';}catch(e){}})();`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -51,11 +41,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: NO_FLASH }} />
-      </head>
-      <body className="min-h-full">
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className="min-h-full background-rad-1 ">
+        <Nav />
+        {children}
       </body>
     </html>
   );
