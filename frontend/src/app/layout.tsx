@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import { Nav } from "@/components/nav";
+import { Nav } from "@/components/ui/nav";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",

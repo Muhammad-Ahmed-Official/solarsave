@@ -14,6 +14,7 @@ export interface GeocodedPlace {
   latitude: number;
 }
 
+
 interface NominatimAddress {
   house_number?: string;
   road?: string;

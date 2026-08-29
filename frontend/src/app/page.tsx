@@ -1,4 +1,4 @@
-import { Nav } from "@/components/nav";
+import { Nav } from "@/components/ui/nav";
 import { HomeHero } from "@/components/home/home-hero";
 import { HowItWorksSection } from "@/components/home/how-it-works";
 
@@ -17,7 +17,7 @@ export default function Home() {
       />
       <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-4 pb-12 pt-4 sm:px-6 lg:px-8">
         <HomeHero />
-        <HowItWorksSection /> 
+        <HowItWorksSection />
       </div>
     </main>
   );

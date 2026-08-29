@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { MapPanel } from "@/components/map/map-panel";
+import { MapPanel } from "@/components/map-panel";
 import {
   estimateLocationToPlace,
   type EstimateLocation,
@@ -173,15 +173,13 @@ function FinanceTabs({
               key={item}
               type="button"
               onClick={() => setTab(item)}
-              className={`relative flex-1 py-4 text-center text-[17px] transition ${
-                active ? "text-[#231f18]" : "text-[#6f6657]"
-              }`}
+              className={`relative flex-1 py-4 text-center text-[17px] transition ${active ? "text-[#231f18]" : "text-[#6f6657]"
+                }`}
             >
               {item.charAt(0).toUpperCase() + item.slice(1)}
               <span
-                className={`absolute inset-x-0 bottom-0 h-0.5 ${
-                  active ? "bg-[#b66a07]" : "bg-transparent"
-                }`}
+                className={`absolute inset-x-0 bottom-0 h-0.5 ${active ? "bg-[#b66a07]" : "bg-transparent"
+                  }`}
               />
             </button>
           );

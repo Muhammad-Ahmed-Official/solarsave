@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { AddressSearch } from "@/components/estimator/address-search";
 import { SavingsForecast } from "@/components/estimator/savings-forecast";
 import { useGhi } from "@/components/estimator/use-ghi";
-import { MapPanel } from "@/components/map/map-panel";
+import { MapPanel } from "@/components/map-panel";
 import type { GeocodedPlace } from "@/lib/geocoding";
 import type { IrradianceBasis } from "@/lib/ghi";
 import { ASSUMED_PEAK_SUN_HOURS } from "@/lib/ghi";
@@ -137,13 +137,13 @@ export function Estimator({ initialAddress = "" }: { initialAddress?: string }) 
     () =>
       ghi
         ? computeSolar({
-            ghi: ghi.annualKwhPerM2,
-            area,
-            efficiency,
-            tariff,
-            costPerKw,
-            latitude: place?.latitude ?? 0,
-          })
+          ghi: ghi.annualKwhPerM2,
+          area,
+          efficiency,
+          tariff,
+          costPerKw,
+          latitude: place?.latitude ?? 0,
+        })
         : null,
     [area, costPerKw, efficiency, ghi, place?.latitude, tariff]
   );

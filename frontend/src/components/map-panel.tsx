@@ -10,7 +10,7 @@ import { CONTEXT_STYLES, SATELLITE_STYLE, type Basemap } from "@/lib/map-styles"
 // Served from public/maplibre by the prebuild/predev copy script.
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
 
-const DEFAULT_VIEW = { longitude: 12, latitude: 26, zoom: 1.35, pitch: 0, bearing: 0 };
+const DEFAULT_VIEW = { longitude: -98.5795, latitude: 39.8283, zoom: 1.35, pitch: 0, bearing: 0 };
 
 /**
  * Roof scale. The previous 15.5 framed a neighbourhood, which is the wrong
