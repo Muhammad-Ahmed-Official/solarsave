@@ -313,6 +313,11 @@ export function EstimateResultSections({ location, fortyGuardResult }: { locatio
 
   const place = useMemo(() => estimateLocationToPlace(location), [location]);
   const analysisResult = session.analysisResult ?? null;
+  const annualConsumptionDisplay = Number(
+    analysisResult?.metrics?.annualConsumptionKwh ??
+      analysisResult?.annualCashFlows?.[0]?.annualConsumptionKwh ??
+      0,
+  );
   const comparisonSeries =
     session.comparisonSeries ??
     (analysisResult
@@ -393,7 +398,7 @@ export function EstimateResultSections({ location, fortyGuardResult }: { locatio
                         </span>
                       </span>
                     </div>
-                    <div className="text-2xl font-semibold">{formatNumber(Number(analysisResult?.metrics?.annualConsumptionKwh ?? 0))} kWh / year</div>
+                    <div className="text-2xl font-semibold">{formatNumber(annualConsumptionDisplay)} kWh / year</div>
                     <div className="text-sm text-[#6d6557]">Derived from monthly bill × 12 and state electricity price</div>
                   </div>
 
