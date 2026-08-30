@@ -226,7 +226,7 @@ function TaskStatusViewContent({
 
   return (
     <>
-      <Result activityId={activityId} location={location} fortyGuardResult={activeFortyGuardResult} />
+      <Result location={location} fortyGuardResult={activeFortyGuardResult} />
 
       <WorkflowModal
         open={view.status === "checking"}
