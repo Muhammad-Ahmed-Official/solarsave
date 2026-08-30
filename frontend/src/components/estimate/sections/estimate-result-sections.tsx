@@ -17,6 +17,8 @@ import { ProviderCtaSection } from "@/components/estimate/sections/provider-cta-
 import { SectionCard } from "@/components/estimate/cards/section-card";
 import { estimateLocationToPlace, buildEstimateSearchParams } from "@/lib/estimate-location";
 import { useEstimateSession } from "@/components/estimate/estimate-session-context";
+import { FinanceComparisonChart } from "@/components/estimate/sections/finance-comparison-chart";
+import { buildSolarComparisonSeries } from "@/lib/solar-comparison";
 
 export function EstimateResultSections({ activityId, location, fortyGuardResult }: { activityId?: string; location: EstimateLocation; fortyGuardResult?: any }) {
   const session = useEstimateSession();
@@ -31,6 +33,16 @@ export function EstimateResultSections({ activityId, location, fortyGuardResult 
 
   const place = useMemo(() => estimateLocationToPlace(location), [location]);
   const analysisResult = session.analysisResult ?? null;
+  const comparisonSeries =
+    session.comparisonSeries ??
+    (analysisResult
+      ? buildSolarComparisonSeries({
+          monthlyBill,
+          annualCashFlows: analysisResult.annualCashFlows,
+          installationCost: Number(analysisResult.metrics?.netInstallationCost ?? metrics.upfrontCost),
+        })
+      : null);
+
   const generatorEstimate = useMemo(() => {
     const result = session.fortyGuardResult ?? fortyGuardResult;
     if (!result) return null;
@@ -120,8 +132,19 @@ export function EstimateResultSections({ activityId, location, fortyGuardResult 
             )}
           </SectionCard>
         </div>
-      </section>
 
+        {analysisResult ? (
+          <div className="mt-6">
+            <SectionCard
+              title="Cumulative cost comparison"
+              showInfo
+              infoText="This chart compares the cumulative cost of staying on-grid against buying or leasing solar, using the same annual electricity-price growth and solar cash-flow assumptions as the financial engine."
+            >
+              <FinanceComparisonChart series={comparisonSeries} />
+            </SectionCard>
+          </div>
+        ) : null}
+      </section>
 
       <FinanceSection
         upfrontCost={metrics.upfrontCost}

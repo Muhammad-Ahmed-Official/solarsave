@@ -8,6 +8,7 @@ import type { EstimateViewState } from "@/components/estimate/estimate-types";
 import { EstimateSessionProvider, useEstimateSession } from "@/components/estimate/estimate-session-context";
 import { getDefaultBill, computeEstimateMetrics } from "@/lib/estimate-calculations";
 import { normalizeState } from "@/lib/financial-engine";
+import { buildSolarComparisonSeries } from "@/lib/solar-comparison";
 import Result from "./result";
 
 const POLL_INTERVAL_MS = 30_000;
@@ -38,7 +39,15 @@ function TaskStatusViewContent({
 }) {
   const router = useRouter();
   const session = useEstimateSession();
-  const { setActivityId, setFortyGuardResult, setAnalysisResult, setAnalysisLoading, setStateCode, fortyGuardResult } = session;
+  const {
+    setActivityId,
+    setFortyGuardResult,
+    setAnalysisResult,
+    setComparisonSeries,
+    setAnalysisLoading,
+    setStateCode,
+    fortyGuardResult,
+  } = session;
   const [view, setView] = useState<EstimateViewState>({ status: "checking", attempt: 1 });
   const analysisRequestedRef = useRef(false);
 
@@ -167,7 +176,18 @@ function TaskStatusViewContent({
 
         const payload = await response.json();
         if (cancelled) return;
-        setAnalysisResult(payload.result ?? null);
+
+        const result = payload.result ?? null;
+        setAnalysisResult(result);
+
+        if (result) {
+          const comparisonSeries = buildSolarComparisonSeries({
+            monthlyBill: getDefaultBill(location),
+            annualCashFlows: result.annualCashFlows,
+            installationCost: Number(result.metrics?.netInstallationCost ?? metrics.upfrontCost),
+          });
+          setComparisonSeries(comparisonSeries);
+        }
       } finally {
         if (!cancelled) {
           setAnalysisLoading(false);

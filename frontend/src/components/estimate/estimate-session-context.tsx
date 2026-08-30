@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import type { SolarComparisonSeries } from "@/lib/solar-comparison";
 
 export type EstimateSessionValue = {
   activityId: string | null;
@@ -8,12 +9,14 @@ export type EstimateSessionValue = {
   fortyGuardResult: any;
   generatorEstimate: any;
   analysisResult: any;
+  comparisonSeries: SolarComparisonSeries | null;
   analysisLoading: boolean;
   setActivityId: (value: string | null) => void;
   setStateCode: (value: string | null) => void;
   setFortyGuardResult: (value: any) => void;
   setGeneratorEstimate: (value: any) => void;
   setAnalysisResult: (value: any) => void;
+  setComparisonSeries: (value: SolarComparisonSeries | null) => void;
   setAnalysisLoading: (value: boolean) => void;
 };
 
@@ -25,6 +28,7 @@ export function EstimateSessionProvider({ children }: { children: ReactNode }) {
   const [fortyGuardResult, setFortyGuardResult] = useState<any>(null);
   const [generatorEstimate, setGeneratorEstimate] = useState<any>(null);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [comparisonSeries, setComparisonSeries] = useState<SolarComparisonSeries | null>(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
 
   const value = useMemo<EstimateSessionValue>(
@@ -34,15 +38,17 @@ export function EstimateSessionProvider({ children }: { children: ReactNode }) {
       fortyGuardResult,
       generatorEstimate,
       analysisResult,
+      comparisonSeries,
       analysisLoading,
       setActivityId,
       setStateCode,
       setFortyGuardResult,
       setGeneratorEstimate,
       setAnalysisResult,
+      setComparisonSeries,
       setAnalysisLoading,
     }),
-    [activityId, stateCode, fortyGuardResult, generatorEstimate, analysisResult, analysisLoading],
+    [activityId, stateCode, fortyGuardResult, generatorEstimate, analysisResult, comparisonSeries, analysisLoading],
   );
 
   return (
