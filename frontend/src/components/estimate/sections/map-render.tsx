@@ -121,7 +121,7 @@ export function MapComponent({ place }: { place: GeocodedPlace | null }) {
             anchor="center"
           >
             <div className="relative grid place-items-center">
-              <span className="absolute -inset-4 rounded-full bg-white/80 opacity-80 blur-sm animate-ping" />
+              <span className="pointer-events-none absolute inset-0 m-auto size-10 rounded-full bg-white/80 opacity-80 blur-sm animate-ping" />
               <span className="absolute size-8 rounded-full border-2 border-blue-500/60 bg-blue-500/10" />
               <div className="relative size-4 rounded-full bg-blue-600 ring-2 ring-white shadow-[0_0_16px_3px_rgba(37,99,235,0.45)]" />
             </div>
