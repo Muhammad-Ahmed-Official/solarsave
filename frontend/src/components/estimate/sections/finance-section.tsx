@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SectionCard } from "@/components/estimate/cards/section-card";
 import { formatCurrency, formatNumber } from "@/lib/estimate-calculations";
 
@@ -138,28 +138,7 @@ export function FinanceSection({
   paybackYears: number;
   analysisResult?: any;
 }) {
-  const [remote, setRemote] = useState<{ title?: string; tabs?: Record<string, { lead: string; body: string }> } | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    async function load() {
-      try {
-        const res = await fetch("/api/content/finance", { cache: "no-store" });
-        if (!res.ok) return;
-        const json = await res.json();
-        if (mounted) setRemote(json);
-      } catch (e) {
-        // ignore and keep local copy
-      }
-    }
-    void load();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const title = remote?.title ?? "Learn how to finance your solar panels";
-  const tabs = remote?.tabs ?? undefined;
+  const title = "Learn how to finance your solar panels";
 
   // Prefer values from analysisResult when available
   const upfront = analysisResult?.metrics?.netInstallationCost ?? upfrontCost;
@@ -182,7 +161,6 @@ export function FinanceSection({
           benefits20y={benefits20}
           savings20y={savings20}
           paybackYears={payback}
-          remoteCopy={tabs}
         />
       </SectionCard>
     </section>

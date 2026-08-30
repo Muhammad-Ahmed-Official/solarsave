@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { EstimateLocation } from "@/lib/estimate-location";
 import Link from "next/link";
 import {
@@ -10,21 +10,18 @@ import {
   formatNumber,
 } from "@/lib/estimate-calculations";
 import { estimateAnnualGenerationKwh } from "@/lib/fortyguard-to-generation";
-import { normalizeState } from "@/lib/financial-engine";
 import { ElectricBillCard } from "@/components/estimate/sections/electric-bill-card";
 import { SolarSizeCard } from "@/components/estimate/sections/solar-size-card";
 import { FinanceSection } from "@/components/estimate/sections/finance-section";
 import { ProviderCtaSection } from "@/components/estimate/sections/provider-cta-section";
 import { SectionCard } from "@/components/estimate/cards/section-card";
 import { estimateLocationToPlace, buildEstimateSearchParams } from "@/lib/estimate-location";
+import { useEstimateSession } from "@/components/estimate/estimate-session-context";
 
 export function EstimateResultSections({ activityId, location, fortyGuardResult }: { activityId?: string; location: EstimateLocation; fortyGuardResult?: any }) {
+  const session = useEstimateSession();
   const defaultBill = useMemo(() => getDefaultBill(location), [location]);
   const [monthlyBill, setMonthlyBill] = useState(defaultBill);
-
-  useEffect(() => {
-    setMonthlyBill(defaultBill);
-  }, [defaultBill]);
 
   const billOptions = useMemo(() => getSummaryBillOptions(defaultBill), [defaultBill]);
   const metrics = useMemo(
@@ -32,66 +29,23 @@ export function EstimateResultSections({ activityId, location, fortyGuardResult 
     [location, monthlyBill],
   );
 
+  const place = useMemo(() => estimateLocationToPlace(location), [location]);
+  const analysisResult = session.analysisResult ?? null;
   const generatorEstimate = useMemo(() => {
-    if (!fortyGuardResult) return null;
+    const result = session.fortyGuardResult ?? fortyGuardResult;
+    if (!result) return null;
     try {
-      return estimateAnnualGenerationKwh(fortyGuardResult, {
+      return estimateAnnualGenerationKwh(result, {
         systemCapacityKw: metrics.solarSizeKw,
         performanceRatio: 0.75,
         state: place?.state ?? location?.subtitle ?? undefined,
       });
-    } catch (e) {
+    } catch {
       return null;
     }
-  }, [fortyGuardResult, metrics.solarSizeKw, location, /* place defined below via memo, but lint wants it */]);
+  }, [fortyGuardResult, location, metrics.solarSizeKw, place, session.fortyGuardResult]);
 
-  const place = useMemo(() => estimateLocationToPlace(location), [location]);
   const detailsHref = activityId && place ? `/estimate/${encodeURIComponent(activityId)}/details?${buildEstimateSearchParams(place).toString()}` : null;
-
-  const [analysisResult, setAnalysisResult] = useState<any | null>(null);
-  useEffect(() => {
-    async function runAnalysis() {
-      if (!generatorEstimate) return;
-      // derive state code from place or subtitle
-      let stateCode: string | undefined = undefined;
-      try {
-        if (place?.state) stateCode = normalizeState(place.state);
-        else if (location?.subtitle) {
-          const parts = String(location.subtitle).split("•").map((s) => s.trim()).filter(Boolean);
-          const guess = parts[parts.length - 1];
-          if (guess) stateCode = normalizeState(guess);
-        }
-      } catch (e) {
-        // normalization failed; leave undefined
-      }
-
-      if (!stateCode) return; // cannot run authoritative financial analysis without state
-
-      const body = {
-        stateCode,
-        installationCost: metrics.upfrontCost,
-        systemCapacityKw: metrics.solarSizeKw,
-        performanceRatio: 0.75,
-        fortyGuardResult,
-      };
-
-      try {
-        const res = await fetch(`/api/analysis`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        if (!res.ok) return;
-        const json = await res.json();
-        setAnalysisResult(json.result ?? null);
-      } catch (e) {
-        // ignore failures, leave analysisResult null
-        console.error("analysis fetch failed", e);
-      }
-    }
-
-    void runAnalysis();
-  }, [generatorEstimate, place, location, metrics.upfrontCost, metrics.solarSizeKw, fortyGuardResult]);
 
   return (
     <div className="relative z-10 mx-auto max-w-7xl">
@@ -115,7 +69,11 @@ export function EstimateResultSections({ activityId, location, fortyGuardResult 
 
         {/* Session result card (shows FortyGuard-derived generation when available) */}
         <div className="mt-6">
-          <SectionCard title="Session results" showInfo>
+          <SectionCard
+            title="Session results"
+            showInfo
+            infoText="This estimate is built from a single live FortyGuard sample for your location and then normalized with the state peak-sun-hours model to produce the annual generation and finance result."
+          >
             {generatorEstimate ? (
               <div className="flex flex-col gap-2">
                 <div className="text-lg font-medium">Estimated annual generation</div>

@@ -70,7 +70,7 @@ function InvoicePdf({ data }: { data: any }) {
 export default function DetailsPage() {
   const params = useParams();
   const search = useSearchParams();
-  const activityId = params?.id;
+  const activityId = Array.isArray(params?.id) ? params.id[0] : params?.id;
   const [place, setPlace] = useState<any>(null);
   const [fgResult, setFgResult] = useState<any>(null);
   const [generatorEstimate, setGeneratorEstimate] = useState<any>(null);

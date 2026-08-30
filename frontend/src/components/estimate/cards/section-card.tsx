@@ -12,11 +12,13 @@ function InfoIcon() {
 export function SectionCard({
   title,
   showInfo = false,
+  infoText,
   className = "",
   children,
 }: {
   title: string;
   showInfo?: boolean;
+  infoText?: string;
   className?: string;
   children: ReactNode;
 }) {
@@ -30,9 +32,16 @@ export function SectionCard({
             {title}
           </h2>
           {showInfo ? (
-            <span className="text-[#948a77]" aria-hidden>
-              <InfoIcon />
-            </span>
+            <div className="group relative text-[#948a77]">
+              <span aria-label={infoText || "Session information"}>
+                <InfoIcon />
+              </span>
+              {infoText ? (
+                <div className="pointer-events-none absolute left-1/2 top-full z-20 mt-2 w-64 -translate-x-1/2 rounded-xl border border-black/5 bg-[#231f18] px-3 py-2 text-left text-xs leading-5 text-white opacity-0 shadow-lg transition group-hover:opacity-100">
+                  {infoText}
+                </div>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>
