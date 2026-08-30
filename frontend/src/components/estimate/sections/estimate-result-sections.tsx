@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { EstimateLocation } from "@/lib/estimate-location";
+import Link from "next/link";
 import {
   computeEstimateMetrics,
   getDefaultBill,
@@ -15,10 +15,10 @@ import { SolarSizeCard } from "@/components/estimate/sections/solar-size-card";
 import { EnvironmentalImpactSection } from "@/components/estimate/sections/environmental-impact-section";
 import { FinanceSection } from "@/components/estimate/sections/finance-section";
 import { ProviderCtaSection } from "@/components/estimate/sections/provider-cta-section";
-import { FallbackSection } from "./fallback";
 import { SectionCard } from "@/components/estimate/cards/section-card";
+import { estimateLocationToPlace, buildEstimateSearchParams } from "@/lib/estimate-location";
 
-export function EstimateResultSections({ location, fortyGuardResult }: { location: EstimateLocation; fortyGuardResult?: any }) {
+export function EstimateResultSections({ activityId, location, fortyGuardResult }: { activityId?: string; location: EstimateLocation; fortyGuardResult?: any }) {
   const defaultBill = useMemo(() => getDefaultBill(location), [location]);
   const [monthlyBill, setMonthlyBill] = useState(defaultBill);
 
@@ -43,6 +43,9 @@ export function EstimateResultSections({ location, fortyGuardResult }: { locatio
       return null;
     }
   }, [fortyGuardResult, metrics.solarSizeKw]);
+
+  const place = useMemo(() => estimateLocationToPlace(location), [location]);
+  const detailsHref = activityId && place ? `/estimate/${encodeURIComponent(activityId)}/details?${buildEstimateSearchParams(place).toString()}` : null;
 
   return (
     <div className="relative z-10 mx-auto max-w-7xl">
@@ -77,6 +80,15 @@ export function EstimateResultSections({ location, fortyGuardResult }: { locatio
                 {generatorEstimate.warning ? (
                   <div className="mt-2 rounded-md bg-yellow-50 px-3 py-2 text-sm text-yellow-800">{generatorEstimate.warning}</div>
                 ) : null}
+
+                {detailsHref ? (
+                  <div className="mt-3">
+                    <Link href={detailsHref} target="_blank" className="inline-flex items-center gap-2 rounded-full bg-[#eef7ef] px-3 py-2 text-sm text-[#235522]">
+                      Show details
+                    </Link>
+                  </div>
+                ) : null}
+
               </div>
             ) : (
               <div className="text-sm text-[#6d6557]">No session generation data available yet.</div>

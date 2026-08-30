@@ -32,7 +32,7 @@ export default function Result({
             <div className="h-100 w-full bg-black text-white">
                 <MapComponent place={place} />
             </div>
-            <EstimateResultSections location={location} fortyGuardResult={fortyGuardResult} />
+            <EstimateResultSections activityId={activityId} location={location} fortyGuardResult={fortyGuardResult} />
         </main>
     );
 }

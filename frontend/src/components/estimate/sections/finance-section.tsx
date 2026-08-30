@@ -9,15 +9,17 @@ function FinanceTabs({
   benefits20y,
   savings20y,
   paybackYears,
+  remoteCopy,
 }: {
   upfrontCost: number;
   benefits20y: number;
   savings20y: number;
   paybackYears: number;
+  remoteCopy?: Record<string, { lead: string; body: string }>;
 }) {
   const [tab, setTab] = useState<"buy" | "lease" | "loan">("buy");
 
-  const copy = {
+  const localCopy = {
     buy: {
       lead: "Pay up front, largest lifetime savings.",
       body:
@@ -33,7 +35,10 @@ function FinanceTabs({
       body:
         "A loan balances cash flow and ownership so you can spread the install cost across monthly payments.",
     },
-  }[tab];
+  } as Record<string, { lead: string; body: string }>;
+
+  const copySource = remoteCopy ?? localCopy;
+  const copy = copySource[tab];
 
   return (
     <div>
@@ -131,14 +136,38 @@ export function FinanceSection({
   savings20y: number;
   paybackYears: number;
 }) {
+  const [remote, setRemote] = useState<{ title?: string; tabs?: Record<string, { lead: string; body: string }> } | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    async function load() {
+      try {
+        const res = await fetch("/api/content/finance", { cache: "no-store" });
+        if (!res.ok) return;
+        const json = await res.json();
+        if (mounted) setRemote(json);
+      } catch (e) {
+        // ignore and keep local copy
+      }
+    }
+    void load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const title = remote?.title ?? "Learn how to finance your solar panels";
+  const tabs = remote?.tabs ?? undefined;
+
   return (
     <section id="finance" className="mx-auto mt-4 max-w-[1600px] px-4 sm:px-6 lg:px-8">
-      <SectionCard title="Learn how to finance your solar panels">
+      <SectionCard title={title}>
         <FinanceTabs
           upfrontCost={upfrontCost}
           benefits20y={benefits20y}
           savings20y={savings20y}
           paybackYears={paybackYears}
+          remoteCopy={tabs}
         />
       </SectionCard>
     </section>
