@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { WorkflowModal } from "@/components/ui/modal";
-import { EstimatePageShell } from "@/components/estimate/estimate-page-shell";
 import type { EstimateLocation } from "@/lib/estimate-location";
 import type { EstimateViewState } from "@/components/estimate/estimate-types";
 import Result from "./result";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SectionCard } from "@/components/estimate/cards/section-card";
 import { formatCurrency, formatNumber } from "@/lib/estimate-calculations";
 
@@ -130,11 +130,13 @@ export function FinanceSection({
   benefits20y,
   savings20y,
   paybackYears,
+  analysisResult,
 }: {
   upfrontCost: number;
   benefits20y: number;
   savings20y: number;
   paybackYears: number;
+  analysisResult?: any;
 }) {
   const [remote, setRemote] = useState<{ title?: string; tabs?: Record<string, { lead: string; body: string }> } | null>(null);
 
@@ -159,14 +161,27 @@ export function FinanceSection({
   const title = remote?.title ?? "Learn how to finance your solar panels";
   const tabs = remote?.tabs ?? undefined;
 
+  // Prefer values from analysisResult when available
+  const upfront = analysisResult?.metrics?.netInstallationCost ?? upfrontCost;
+  let benefits20 = benefits20y;
+  if (analysisResult?.annualCashFlows) {
+    const rows = analysisResult.annualCashFlows.slice(0, 20);
+    const sum = rows.reduce((s: number, r: any) => s + (Number(r.grossSavings) || 0), 0);
+    benefits20 = Math.round(sum);
+  } else if (analysisResult?.metrics?.lifetimeGrossSavings) {
+    benefits20 = Math.round(analysisResult.metrics.lifetimeGrossSavings);
+  }
+  const savings20 = analysisResult?.metrics?.lifetimeNetProfit ?? savings20y;
+  const payback = analysisResult?.metrics?.paybackYears ?? paybackYears;
+
   return (
     <section id="finance" className="mx-auto mt-4 max-w-[1600px] px-4 sm:px-6 lg:px-8">
       <SectionCard title={title}>
         <FinanceTabs
-          upfrontCost={upfrontCost}
-          benefits20y={benefits20y}
-          savings20y={savings20y}
-          paybackYears={paybackYears}
+          upfrontCost={upfront}
+          benefits20y={benefits20}
+          savings20y={savings20}
+          paybackYears={payback}
           remoteCopy={tabs}
         />
       </SectionCard>

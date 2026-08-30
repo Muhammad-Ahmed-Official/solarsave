@@ -12,6 +12,7 @@ import {
   ScaleControl,
   NavigationControl,
 } from "react-map-gl/maplibre";
+import { TiLocation } from "react-icons/ti";
 
 // Served from public/maplibre by the prebuild/predev copy script.
 setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
@@ -69,11 +70,9 @@ export function MapComponent({ place }: { place: GeocodedPlace | null }) {
     ) {
       const lat = place.latitude;
       const lng = place.longitude;
-      // Pan to the location keeping the current zoom level (do not zoom out)
       const currentZoom = map.getZoom();
       map.easeTo({ center: [lng, lat], zoom: currentZoom, duration: 600 });
     } else {
-      // No place: pan to default view (preserve default zoom)
       map.easeTo({ center: [DEFAULT_VIEW.longitude, DEFAULT_VIEW.latitude], zoom: DEFAULT_VIEW.zoom, duration: 600 });
     }
   }, []);
@@ -92,7 +91,6 @@ export function MapComponent({ place }: { place: GeocodedPlace | null }) {
         }
         attributionControl={{ compact: true }}
         style={{ width: "100%", height: "100%" }}
-        // interaction controls: disable mouse wheel and double-click zoom but keep programmatic zoom
         scrollZoom={false}
         doubleClickZoom={false}
         boxZoom={false}
@@ -109,9 +107,7 @@ export function MapComponent({ place }: { place: GeocodedPlace | null }) {
             anchor="center"
           >
             <div className="relative grid place-items-center">
-              {/* Outer white ping */}
               <span className="absolute -inset-3 rounded-full bg-white/80 opacity-80 blur-sm animate-ping" />
-              {/* Inner blue marker */}
               <div className="relative size-4 rounded-full bg-blue-600 ring-2 ring-white shadow-[0_0_16px_3px_rgba(37,99,235,0.35)]" />
             </div>
           </Marker>
@@ -126,7 +122,7 @@ export function MapComponent({ place }: { place: GeocodedPlace | null }) {
           onClick={fit}
           className="rounded-md bg-white/90 px-3 py-2 text-sm text-black shadow"
         >
-          Fit
+            <TiLocation size={14}/>
         </button>
       </div>
     </div>

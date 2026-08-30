@@ -5,6 +5,7 @@ import type { EstimateLocation } from "@/lib/estimate-location";
 import { useMemo } from "react";
 import type { GeocodedPlace } from "@/lib/geocoding";
 import { MapComponent } from "@/components/estimate/sections/map-render";
+import { EstimateViewState } from "./estimate-types";
 
 export default function Result({
     activityId,

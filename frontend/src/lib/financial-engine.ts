@@ -121,7 +121,7 @@ const stateCodes: Record<string, string> = {
 const priceCache = new Map<string, { value: ElectricityPrice; expiresAt: number }>();
 const priceCacheTime = 12 * 60 * 60 * 1000; // 12 hours
 
-function normalizeState(value: string) {
+export function normalizeState(value: string) {
   const cleaned = String(value).trim();
   if (/^[A-Za-z]{2}$/.test(cleaned)) return cleaned.toUpperCase();
   const code = stateCodes[cleaned.toLowerCase()];
