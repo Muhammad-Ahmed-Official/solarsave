@@ -1,4 +1,3 @@
-import { Nav } from "@/components/ui/nav";
 import { HomeHero } from "@/components/home/home-hero";
 import { HowItWorksSection } from "@/components/home/how-it-works";
 

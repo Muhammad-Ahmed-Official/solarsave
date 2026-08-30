@@ -1,0 +1,8 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "/^python3 - <<'PY'\n# Compute for GHI=464\\.84, state OR -> peak 4\\.2, system 5kW PR0\\.75\nghi=464\\.84\npeak=4\\.2\nhours=peak\\*365\nannual_kwh = ghi \\* hours / 1000\\.0\nsystem_kw=5\\.0\npr=0\\.75\nannual_gen = annual_kwh \\* system_kw \\* pr\nprint\\('ghi=', ghi\\)\nprint\\('peak_hours_per_day=', peak\\)\nprint\\('hours_per_year=', hours\\)\nprint\\(f\"annual_irradiance_kwh_per_m2=\\{annual_kwh:\\.6f\\}\"\\)\nprint\\(f\"annual_generation_kwh=\\{annual_gen:\\.2f\\}\"\\)\nPY$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
+}

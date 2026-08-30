@@ -7,10 +7,13 @@ import type { GeocodedPlace } from "@/lib/geocoding";
 import { MapComponent } from "@/components/estimate/sections/map-render";
 
 export default function Result({
+    activityId,
     location,
+    fortyGuardResult,
 }: {
     activityId: string;
     location: EstimateLocation;
+    fortyGuardResult?: any;
 }) {
 
     const place = useMemo(() => {
@@ -29,7 +32,7 @@ export default function Result({
             <div className="h-100 w-full bg-black text-white">
                 <MapComponent place={place} />
             </div>
-            <EstimateResultSections location={location} />
+            <EstimateResultSections location={location} fortyGuardResult={fortyGuardResult} />
         </main>
     );
 }

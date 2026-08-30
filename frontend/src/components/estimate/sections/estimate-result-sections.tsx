@@ -7,15 +7,18 @@ import {
   computeEstimateMetrics,
   getDefaultBill,
   getSummaryBillOptions,
+  formatNumber,
 } from "@/lib/estimate-calculations";
+import { estimateAnnualGenerationKwh } from "@/lib/fortyguard-to-generation";
 import { ElectricBillCard } from "@/components/estimate/sections/electric-bill-card";
 import { SolarSizeCard } from "@/components/estimate/sections/solar-size-card";
 import { EnvironmentalImpactSection } from "@/components/estimate/sections/environmental-impact-section";
 import { FinanceSection } from "@/components/estimate/sections/finance-section";
 import { ProviderCtaSection } from "@/components/estimate/sections/provider-cta-section";
 import { FallbackSection } from "./fallback";
+import { SectionCard } from "@/components/estimate/cards/section-card";
 
-export function EstimateResultSections({ location }: { location: EstimateLocation }) {
+export function EstimateResultSections({ location, fortyGuardResult }: { location: EstimateLocation; fortyGuardResult?: any }) {
   const defaultBill = useMemo(() => getDefaultBill(location), [location]);
   const [monthlyBill, setMonthlyBill] = useState(defaultBill);
 
@@ -28,6 +31,18 @@ export function EstimateResultSections({ location }: { location: EstimateLocatio
     () => computeEstimateMetrics(location, monthlyBill),
     [location, monthlyBill],
   );
+
+  const generatorEstimate = useMemo(() => {
+    if (!fortyGuardResult) return null;
+    try {
+      return estimateAnnualGenerationKwh(fortyGuardResult, {
+        systemCapacityKw: metrics.solarSizeKw,
+        performanceRatio: 0.75,
+      });
+    } catch (e) {
+      return null;
+    }
+  }, [fortyGuardResult, metrics.solarSizeKw]);
 
   return (
     <div className="relative z-10 mx-auto max-w-7xl">
@@ -47,6 +62,26 @@ export function EstimateResultSections({ location }: { location: EstimateLocatio
             arraySqFt={metrics.arraySqFt}
             coveragePct={metrics.coveragePct}
           />
+        </div>
+
+        {/* Session result card (shows FortyGuard-derived generation when available) */}
+        <div className="mt-6">
+          <SectionCard title="Session results" showInfo>
+            {generatorEstimate ? (
+              <div className="flex flex-col gap-2">
+                <div className="text-lg font-medium">Estimated annual generation</div>
+                <div className="text-2xl font-semibold">{formatNumber(generatorEstimate.annualGenerationKwh ?? 0)} kWh / year</div>
+                <div className="text-sm text-[#6d6557]">
+                  Extrapolated from a single GHI sample: {generatorEstimate.extrapolated ? "Yes" : "No"}
+                </div>
+                {generatorEstimate.warning ? (
+                  <div className="mt-2 rounded-md bg-yellow-50 px-3 py-2 text-sm text-yellow-800">{generatorEstimate.warning}</div>
+                ) : null}
+              </div>
+            ) : (
+              <div className="text-sm text-[#6d6557]">No session generation data available yet.</div>
+            )}
+          </SectionCard>
         </div>
       </section>
 

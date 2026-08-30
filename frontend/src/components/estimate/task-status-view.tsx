@@ -137,7 +137,7 @@ export function TaskStatusView({
     <>
       {/* <EstimatePageShell activityId={activityId} location={location} view={view} /> */}
 
-      <Result activityId={activityId} location={location} />
+      <Result activityId={activityId} location={location} fortyGuardResult={view.payload} />
 
       <WorkflowModal
         open={view.status === "checking"}
