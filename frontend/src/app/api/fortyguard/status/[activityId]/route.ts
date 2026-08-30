@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { fetchFortyGuardStatus } from "@/lib/fortyguard-api";
 
-type ParamsInput = { activityId: string } | Promise<{ activityId: string }>;
+type RouteParams = Promise<{ activityId: string }>;
 
 export async function GET(
   _request: Request,
-  { params }: { params: ParamsInput }
+  { params }: { params: RouteParams }
 ) {
   try {
     const resolved = await params;

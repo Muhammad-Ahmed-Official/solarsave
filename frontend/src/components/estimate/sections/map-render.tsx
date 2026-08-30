@@ -3,7 +3,6 @@
 import { GeocodedPlace } from "@/lib/geocoding";
 import { Basemap, CONTEXT_STYLES, SATELLITE_STYLE } from "@/lib/map-styles";
 import { LngLatBounds, setWorkerUrl } from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Map,

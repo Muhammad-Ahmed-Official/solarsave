@@ -6,11 +6,8 @@ import {
   type EstimateSearchParamsInput,
 } from "@/lib/estimate-location";
 
-type ParamsInput = { id: string } | Promise<{ id: string }>;
-type SearchParamsInput =
-  | EstimateSearchParamsInput
-  | Promise<EstimateSearchParamsInput>
-  | undefined;
+type ParamsInput = Promise<{ id: string }>;
+type SearchParamsInput = Promise<EstimateSearchParamsInput | undefined>;
 
 export default async function EstimateTaskPage({
   params,
@@ -20,7 +17,7 @@ export default async function EstimateTaskPage({
   searchParams?: SearchParamsInput;
 }) {
   const { id } = await params;
-  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const resolvedSearchParams = await searchParams;
   const location = parseEstimateLocation(resolvedSearchParams);
 
       const hasLocation = location.latitude !== null && location.longitude !== null;

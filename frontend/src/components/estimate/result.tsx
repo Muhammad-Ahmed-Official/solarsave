@@ -5,16 +5,14 @@ import type { EstimateLocation } from "@/lib/estimate-location";
 import { useMemo } from "react";
 import type { GeocodedPlace } from "@/lib/geocoding";
 import { MapComponent } from "@/components/estimate/sections/map-render";
-import { EstimateViewState } from "./estimate-types";
+
 
 export default function Result({
-    activityId,
     location,
     fortyGuardResult,
 }: {
-    activityId: string;
     location: EstimateLocation;
-    fortyGuardResult?: any;
+    fortyGuardResult?: unknown;
 }) {
 
     const place = useMemo(() => {
@@ -33,7 +31,7 @@ export default function Result({
             <div className="h-100 w-full bg-black text-white">
                 <MapComponent place={place} />
             </div>
-            <EstimateResultSections activityId={activityId} location={location} fortyGuardResult={fortyGuardResult} />
+            <EstimateResultSections location={location} fortyGuardResult={fortyGuardResult} />
         </main>
     );
 }
