@@ -90,7 +90,7 @@ export function EstimateResultSections({ activityId, location, fortyGuardResult 
               <div className="flex flex-col gap-2">
                 <div className="text-lg font-medium">Estimated annual generation</div>
                 <div className="text-2xl font-semibold">{formatNumber(generatorEstimate.annualGenerationKwh ?? 0)} kWh / year</div>
-                <div className="text-sm text-[#6d6557]">Derived from a single GHI sample.</div>
+                <div className="text-sm text-[#6d6557]">Derived from <a target="_blank" href="https://docs-api.fortyguard.com/docs/environmental-parameters" className="underline" >FortyGuard</a> GHI data</div>
 
                 {generatorEstimate.warning ? (
                   <div className="mt-2 rounded-md bg-yellow-50 px-3 py-2 text-sm text-yellow-800">{generatorEstimate.warning}</div>

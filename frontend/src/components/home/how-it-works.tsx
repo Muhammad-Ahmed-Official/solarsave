@@ -209,6 +209,7 @@ export function HowItWorksSection() {
         <div className="mx-auto max-w-4xl text-center">
           <h2 className="mt-3 text-3xl font-normal tracking-[-0.04em] text-[#231f18] sm:text-4xl">
             Your own personalized solar savings estimator, powered by {" "}
+            <a href="http://fortyguard.com" target="_blank">
             <Image
             src="/fortyguard.png"
             alt="fortyguard"
@@ -216,6 +217,7 @@ export function HowItWorksSection() {
             height={30}
             className="inline-block align-middle"
           />
+          </a>
           </h2>
         </div>
 

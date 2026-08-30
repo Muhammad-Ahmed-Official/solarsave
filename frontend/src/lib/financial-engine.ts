@@ -20,6 +20,7 @@ export interface SolarAnalysisInput {
   stateCode: string;
   annualGenerationKwh: number;
   installationCost: number;
+  monthlyBill?: number;
   projectYears?: number;
   annualDegradation?: number;
   electricityInflation?: number;
@@ -31,11 +32,16 @@ export interface SolarAnalysisInput {
 
 export type AnnualCashFlowRow = {
   year: number;
-  energyKwh: number;
+  solarEnergyKwh: number;
   pricePerKwh: number;
   grossSavings: number;
   maintenance: number;
   netCashFlow: number;
+  instantInstall: number;
+  gridCost: number;
+  leaseCost: number;
+  energyKwh?: number;
+  maintenanceCost?: number;
 };
 
 export type SolarAnalysisResult = {
@@ -284,8 +290,23 @@ export function runSolarAnalysis(
     const gross = energy * price;
     const maint = maintenance * Math.pow(1 + maintenanceInflation, t - 1);
     const cf = gross - maint;
+    const gridCost = (Number(input.monthlyBill ?? (gross / Math.max(energy || 1, 1))) * 12) * Math.pow(1 + inflation, t - 1);
+    const leaseCost = (installCost * 0.08) || 0;
+    const instantInstall = netInstallationCost;
 
-    annualRows.push({ year: t, energyKwh: round2(energy), pricePerKwh: round2(price), grossSavings: round2(gross), maintenance: round2(maint), netCashFlow: round2(cf) });
+    annualRows.push({
+      year: t,
+      solarEnergyKwh: round2(energy),
+      pricePerKwh: round2(price),
+      grossSavings: round2(gross),
+      maintenance: round2(maint),
+      netCashFlow: round2(cf),
+      instantInstall: round2(instantInstall),
+      gridCost: round2(gridCost),
+      leaseCost: round2(leaseCost),
+      energyKwh: round2(energy),
+      maintenanceCost: round2(maint),
+    });
 
     cashFlows.push(cf);
 

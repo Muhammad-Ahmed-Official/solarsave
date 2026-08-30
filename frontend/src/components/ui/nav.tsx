@@ -19,7 +19,7 @@ export function Nav() {
       </Link>
 
       <div className="ml-auto flex items-center gap-4">
-        <Link href="/about" className="text-sm text-[#4a4337] hover:underline">About</Link>
+        <Link href="/about" className="text-sm text-[#4a4337] hover:underline font-semibold ">About</Link>
       </div>
     </nav>
   );

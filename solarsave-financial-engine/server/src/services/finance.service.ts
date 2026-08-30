@@ -181,13 +181,24 @@ export function runSolarAnalysis(
     cumulativeCashFlow += netCashFlow;
     cashFlows.push(netCashFlow);
 
+    const monthlyBill = input.monthlyBill ?? (Math.max(generationKwh, 1) * electricityRate) / 12;
+    const leaseCost = Math.max(0, netInstallationCost * 0.08);
+    const instantInstall = netInstallationCost;
+    const gridCost = monthlyBill * 12 * Math.pow(1 + assumptions.electricityInflation, year - 1);
+
     annualCashFlows.push({
       year,
+      solarEnergyKwh: round(generationKwh),
+      pricePerKwh: round(electricityRate, 4),
+      grossSavings: round(grossSavings),
+      maintenance: round(maintenanceCost),
+      netCashFlow: round(netCashFlow),
+      instantInstall: round(instantInstall),
+      gridCost: round(gridCost),
+      leaseCost: round(leaseCost),
       generationKwh: round(generationKwh),
       electricityRate: round(electricityRate, 4),
-      grossSavings: round(grossSavings),
       maintenanceCost: round(maintenanceCost),
-      netCashFlow: round(netCashFlow),
       cumulativeCashFlow: round(cumulativeCashFlow),
     });
   }

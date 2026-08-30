@@ -2,6 +2,7 @@ export interface SolarAnalysisInput {
   stateCode: string;
   annualGenerationKwh: number;
   installationCost: number;
+  monthlyBill?: number;
   projectYears?: number;
   annualDegradation?: number;
   electricityInflation?: number;
@@ -27,12 +28,18 @@ export interface TreasuryRate {
 
 export interface AnnualCashFlow {
   year: number;
-  generationKwh: number;
-  electricityRate: number;
+  solarEnergyKwh: number;
+  pricePerKwh: number;
   grossSavings: number;
-  maintenanceCost: number;
+  maintenance: number;
   netCashFlow: number;
-  cumulativeCashFlow: number;
+  instantInstall: number;
+  gridCost: number;
+  leaseCost: number;
+  generationKwh?: number;
+  electricityRate?: number;
+  maintenanceCost?: number;
+  cumulativeCashFlow?: number;
 }
 
 export interface SolarAnalysisResult {

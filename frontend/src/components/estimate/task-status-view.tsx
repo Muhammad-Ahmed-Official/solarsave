@@ -229,7 +229,7 @@ function TaskStatusViewContent({
         <div className="flex items-center gap-3 rounded-[20px] bg-[#f8f4eb] px-4 py-3">
           <span className="size-4 animate-spin rounded-full border-2 border-[#4a7c46] border-t-transparent" />
           <div className="text-sm text-[#6d6557]">
-            The request is still processing. We will check again automatically.
+            The request is still processing. Please be patient...
           </div>
         </div>
       </WorkflowModal>

@@ -23,7 +23,12 @@ export function buildSolarComparisonSeries({
     netCashFlow?: number;
     grossSavings?: number;
     energyKwh?: number;
+    solarEnergyKwh?: number;
     pricePerKwh?: number;
+    gridCost?: number;
+    leaseCost?: number;
+    instantInstall?: number;
+    maintenance?: number;
   }>;
   installationCost: number;
   years?: number;
@@ -41,13 +46,14 @@ export function buildSolarComparisonSeries({
 
   for (let year = 1; year <= years; year += 1) {
     const cash = annualCashFlows?.[year - 1];
-    const annualGridCost =
-      Number(cash?.energyKwh ?? annualBaseBill / 12) *
-      Number(cash?.pricePerKwh ?? Math.max((annualBaseBill / 12) / Math.max(Number(cash?.energyKwh ?? 1), 1), 0.12));
+    const annualGridCostFromEngine =
+      Number(cash?.gridCost ??
+        (Number(cash?.energyKwh ?? cash?.solarEnergyKwh ?? annualBaseBill / 12) *
+          Number(cash?.pricePerKwh ?? Math.max((annualBaseBill / 12) / Math.max(Number(cash?.energyKwh ?? cash?.solarEnergyKwh ?? 1), 1), 0.12))));
 
-    const annualUtilityCost = annualGridCost * Math.pow(1 + annualElectricityInflation, year - 1);
-    const annualLeaseCost = leaseAnnualPayment;
-    const annualBuyCost = buyUpfront / Math.max(years, 1);
+    const annualUtilityCost = annualGridCostFromEngine * Math.pow(1 + annualElectricityInflation, year - 1);
+    const annualLeaseCost = Number(cash?.leaseCost ?? leaseAnnualPayment);
+    const annualBuyCost = Number(cash?.instantInstall ?? buyUpfront / Math.max(years, 1));
 
     cumulativeGrid += annualUtilityCost;
     cumulativeLease += annualLeaseCost;
@@ -55,25 +61,13 @@ export function buildSolarComparisonSeries({
 
     points.push({
       year,
-      grid: annualUtilityCost,
-      buy: annualBuyCost,
-      lease: annualLeaseCost,
+      grid: cumulativeGrid,
+      buy: cumulativeBuy,
+      lease: cumulativeLease,
     });
   }
 
-  let paybackYear: number | null = null;
-  let gridTotal = 0;
-  let leaseTotal = 0;
+  const paybackYear = points.findIndex((point) => point.year > 0 && point.lease <= point.grid) + 1 || null;
 
-  for (const point of points) {
-    if (point.year === 0) continue;
-    gridTotal += point.grid;
-    leaseTotal += point.lease;
-    if (leaseTotal <= gridTotal) {
-      paybackYear = point.year;
-      break;
-    }
-  }
-
-  return { points, paybackYear };
+  return { points, paybackYear: paybackYear ? paybackYear : null };
 }

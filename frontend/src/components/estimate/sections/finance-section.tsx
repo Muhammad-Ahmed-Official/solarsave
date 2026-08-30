@@ -17,7 +17,7 @@ function FinanceTabs({
   paybackYears: number;
   remoteCopy?: Record<string, { lead: string; body: string }>;
 }) {
-  const [tab, setTab] = useState<"buy" | "lease" | "loan">("buy");
+  const [tab, setTab] = useState<"buy" | "lease" >("buy");
 
   const localCopy = {
     buy: {
@@ -29,12 +29,7 @@ function FinanceTabs({
       lead: "Lower upfront cost, predictable payments.",
       body:
         "A lease reduces the initial spend while still shifting part of your electricity use toward solar.",
-    },
-    loan: {
-      lead: "Finance ownership over time.",
-      body:
-        "A loan balances cash flow and ownership so you can spread the install cost across monthly payments.",
-    },
+    }
   } as Record<string, { lead: string; body: string }>;
 
   const copySource = remoteCopy ?? localCopy;
@@ -43,7 +38,7 @@ function FinanceTabs({
   return (
     <div>
       <div className="flex border-b border-[#d8c8b2]">
-        {(["buy", "lease", "loan"] as const).map((item) => {
+        {(["buy", "lease"] as const).map((item) => {
           const active = item === tab;
           return (
             <button
