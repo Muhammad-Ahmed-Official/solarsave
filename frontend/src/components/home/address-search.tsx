@@ -13,6 +13,7 @@ import { searchPlaces, type GeocodedPlace } from "@/lib/geocoding";
 import { buildEstimateHref } from "@/lib/estimate-location";
 import { WorkflowModal } from "@/components/ui/modal";
 import { LuX } from "react-icons/lu";
+import Link from "next/link";
 
 const MIN_QUERY_LENGTH = 3;
 const DEBOUNCE_MS = 350;
@@ -300,6 +301,10 @@ export function AddressSearch() {
           >
             Search
           </button>
+
+          {/* <Link href={ "/estimate/12345"} >
+          estimate
+          </Link> */}
         </div>
       </form>
 

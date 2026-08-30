@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
+import { Nav } from "@/components/ui/nav";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -17,32 +17,69 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SOLAR SAVE — Solar Savings Estimator by Irradiance",
-  description:
-    "Estimate solar energy production, bill savings and payback for any property using FortyGuard solar irradiance (GHI) data.",
-  openGraph: {
-    title: "SOLAR SAVE — Solar Savings Estimator",
-    description:
-      "Map a property, pull its solar irradiance, and model 25 years of energy production, savings and payback.",
+  metadataBase: new URL("https://solarsave.app"),
+  title: {
+    default: "SolarSave — Learn how much solar energy and savings your home could unlock",
+    template: "%s | SolarSave",
   },
+  description:
+    "SolarSave helps people understand clean energy by estimating solar generation, electricity savings, payback, and long-term value using location data, FortyGuard GHI, and transparent financial assumptions.",
+  applicationName: "SolarSave",
+  keywords: [
+    "solar",
+    "solar savings",
+    "clean energy",
+    "renewable energy",
+    "GHI",
+    "global horizontal irradiance",
+    "solar payback",
+    "solar ROI",
+    "electricity savings",
+    "FortyGuard",
+  ],
+  authors: [{ name: "SolarSave" }],
+  creator: "SolarSave",
+  publisher: "SolarSave",
+  alternates: {
+    canonical: "/",
+  },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }, { url: "/favicon.ico" }],
+    shortcut: ["/icon.svg"],
+    apple: [{ url: "/icon.svg" }],
+  },
+  openGraph: {
+    type: "website",
+    siteName: "SolarSave",
+    title: "SolarSave — Clean energy education with solar savings estimates",
+    description:
+      "Explore how sunlight, household electricity use, and long-term cost come together. SolarSave estimates solar generation, payback, and savings with clear assumptions and readable math.",
+    url: "/",
+    images: [
+      {
+        url: "/hero-roofs.jpg",
+        width: 1200,
+        height: 630,
+        alt: "SolarSave clean energy and rooftop solar illustration",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SolarSave — Clean energy education with solar savings estimates",
+    description:
+      "Estimate solar generation, understand GHI and peak sun hours, and see how much switching to solar could save over time.",
+    images: ["/hero-roofs.jpg"],
+  },
+  category: "technology",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbefef" },
-    { media: "(prefers-color-scheme: dark)", color: "#151b18" },
-  ],
+  themeColor: "#fbefef",
 };
-
-/**
- * Applies the stored theme before first paint. Without this the page renders
- * light, then snaps to dark once React hydrates — the classic flash.
- * Deliberately tiny and dependency-free so it stays cheap to inline.
- */
-const NO_FLASH = `(function(){try{var p=localStorage.getItem('solarsave-theme');var d=p==='dark'||((!p||p==='system')&&matchMedia('(prefers-color-scheme: dark)').matches);var e=document.documentElement;e.classList.toggle('dark',d);e.style.colorScheme=d?'dark':'light';}catch(e){}})();`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -51,11 +88,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: NO_FLASH }} />
-      </head>
-      <body className="min-h-full">
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className="min-h-full background-rad-1 ">
+        <Nav />
+        {children}
       </body>
     </html>
   );

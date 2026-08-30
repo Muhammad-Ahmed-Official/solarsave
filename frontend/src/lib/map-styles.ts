@@ -58,6 +58,5 @@ export const SATELLITE_STYLE: StyleSpecification = {
 };
 
 export const CONTEXT_STYLES = {
-  light: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
-  dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+  context: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
 } as const;

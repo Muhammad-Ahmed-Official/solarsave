@@ -39,6 +39,12 @@ async function readJson(response: Response) {
 export async function submitFortyGuardTask(
   input: FortyGuardSubmitInput
 ): Promise<FortyGuardSubmitResult> {
+
+  // Use yesterday as the single-day start_date for filter_type 3 (no end_date)
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const formatYmd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
   const response = await fetch(SUBMIT_URL, {
     method: "POST",
     cache: "no-store",
@@ -48,14 +54,14 @@ export async function submitFortyGuardTask(
       Accept: "application/json",
       "api-key": getApiKey(),
     },
+
     body: JSON.stringify({
       latitude: input.latitude,
       longitude: input.longitude,
       temperature: 10,
       date_time: {
-        start_date: "2024-07-15",
-        start_time: "14:00",
-        filter_type: 1,
+        start_date: formatYmd(yesterday),
+        filter_type: 3,
       },
     }),
   });
