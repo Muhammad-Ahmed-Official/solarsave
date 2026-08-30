@@ -60,6 +60,16 @@ function formatPdfCurrency(value: unknown) {
   }).format(n);
 }
 
+function formatPdfElectricityRate(value: unknown) {
+  const n = Number(value);
+
+  if (!Number.isFinite(n)) {
+    return "—";
+  }
+
+  return `$${n.toFixed(4)}`;
+}
+
 function formatPdfPercent(value: unknown) {
   const n = Number(value);
   if (!Number.isFinite(n)) return "—";
@@ -178,7 +188,7 @@ function BreakdownPdf({
               <Text style={pdfStyles.statValue}>{formatPdfCurrency(data.analysisResult?.metrics?.netInstallationCost ?? data.upfrontCost)}</Text>
             </View>
             <View style={pdfStyles.statCard}>
-              <Text style={pdfStyles.statLabel}>20–25 year net profit</Text>
+              <Text style={pdfStyles.statLabel}>{projectYears}-year net profit</Text>
               <Text style={pdfStyles.statValue}>{formatPdfCurrency(data.analysisResult?.metrics?.lifetimeNetProfit)}</Text>
             </View>
             <View style={pdfStyles.statCard}>
@@ -199,13 +209,13 @@ function BreakdownPdf({
             <View style={pdfStyles.col}>
               <Text style={pdfStyles.bullet}>• Monthly electricity bill: {formatPdfCurrency(data.monthlyBill)}</Text>
               <Text style={pdfStyles.bullet}>• Estimated system size used: {formatNumber(data.generatorEstimate?.systemCapacityKwUsed ?? data.solarSizeKw)} kW</Text>
-              <Text style={pdfStyles.bullet}>• Performance ratio used: {formatNumber(Number(data.generatorEstimate?.performanceRatioUsed ?? 0.75))}</Text>
+              <Text style={pdfStyles.bullet}>• Performance ratio used: {" "} {Number (data.generatorEstimate?.performanceRatioUsed ?? 0.75).toFixed(2)}</Text>
               <Text style={pdfStyles.bullet}>• GHI sample: {formatNumber(ghi)} W/m²</Text>
             </View>
             <View style={pdfStyles.col}>
               <Text style={pdfStyles.bullet}>• Peak sun hours/day: {formatNumber(peakSunHours)}</Text>
               <Text style={pdfStyles.bullet}>• Formula hours/year: {formatNumber(formulaHours)}</Text>
-              <Text style={pdfStyles.bullet}>• State electricity price: {formatPdfCurrency(data.analysisResult?.electricity?.dollarsPerKwh)} per kWh</Text>
+              <Text style={pdfStyles.bullet}>• State electricity price: {""} {formatPdfElectricityRate(data.analysisResult?.electricity?.dollarsPerKwh)}{""} per kWh</Text>
               <Text style={pdfStyles.bullet}>• Treasury rate date: {data.analysisResult?.treasury?.date ?? "—"}</Text>
             </View>
           </View>
@@ -216,7 +226,7 @@ function BreakdownPdf({
           <View style={pdfStyles.equationBox}>
             <Text style={pdfStyles.equation}>1. Grid annual consumption = (monthly bill ÷ electricity price per kWh) × 12</Text>
             <Text style={pdfStyles.paragraph}>Using the inputs above, the model converts a monthly spend estimate into annual household electricity consumption.</Text>
-            <Text style={pdfStyles.paragraph}>Result: ({formatPdfCurrency(data.monthlyBill)} ÷ {formatPdfCurrency(data.analysisResult?.electricity?.dollarsPerKwh)}) × 12 = {formatNumber(annualConsumption)} kWh/year</Text>
+            <Text style={pdfStyles.paragraph}>Result: ({formatPdfCurrency(data.monthlyBill)} ÷ {formatPdfCurrency(data.analysisResult?.electricity?.dollarsPerKwh)}) × 12 ≈ {formatNumber(annualConsumption)} kWh/year</Text>
           </View>
           <View style={pdfStyles.equationBox}>
             <Text style={pdfStyles.equation}>2. Annual irradiance = GHI × peak sun hours/day × 365 ÷ 1000</Text>
@@ -226,7 +236,7 @@ function BreakdownPdf({
           <View style={pdfStyles.equationBox}>
             <Text style={pdfStyles.equation}>3. Estimated annual generation = annual irradiance × system capacity × performance ratio</Text>
             <Text style={pdfStyles.paragraph}>This converts irradiation into a lightweight production estimate for the selected solar system size.</Text>
-            <Text style={pdfStyles.paragraph}>Result: {formatNumber(Number(data.generatorEstimate?.annualIrradianceKwhPerM2 ?? 0))} × {formatNumber(data.generatorEstimate?.systemCapacityKwUsed ?? data.solarSizeKw)} × {formatNumber(Number(data.generatorEstimate?.performanceRatioUsed ?? 0.75))} = {formatNumber(annualGeneration)} kWh/year</Text>
+            <Text style={pdfStyles.paragraph}>Result: {formatNumber(Number(data.generatorEstimate?.annualIrradianceKwhPerM2 ?? 0))} × {formatNumber(data.generatorEstimate?.systemCapacityKwUsed ?? data.solarSizeKw)} × {formatNumber(Number(data.generatorEstimate?.performanceRatioUsed ?? 0.75))} ≈ {formatNumber(annualGeneration)} kWh/year</Text>
           </View>
           <View style={pdfStyles.equationBox}>
             <Text style={pdfStyles.equation}>4. Yearly solar savings = yearly solar generation × annual electricity price for that year</Text>
