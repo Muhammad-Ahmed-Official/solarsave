@@ -2,19 +2,15 @@
 
 import { useState } from "react";
 import { SectionCard } from "@/components/estimate/cards/section-card";
-import { formatCurrency, formatNumber } from "@/lib/estimate-calculations";
+import { formatCurrency } from "@/lib/estimate-calculations";
 
 function FinanceTabs({
   upfrontCost,
-  benefits20y,
   savings20y,
-  paybackYears,
   remoteCopy,
 }: {
   upfrontCost: number;
-  benefits20y: number;
   savings20y: number;
-  paybackYears: number;
   remoteCopy?: Record<string, { lead: string; body: string }>;
 }) {
   const [tab, setTab] = useState<"buy" | "lease" >("buy");
@@ -65,56 +61,64 @@ function FinanceTabs({
           <span className="font-semibold text-[#7b5eae]">{copy.lead}</span> {copy.body}
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="text-center">
-            <div className="text-2xl font-medium tracking-[-0.04em] text-[#231f18]">
-              {formatCurrency(upfrontCost)}
+        {tab === "buy" ? (
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="text-center">
+              <div className="text-2xl font-medium tracking-[-0.04em] text-[#231f18]">
+                {formatCurrency(upfrontCost)}
+              </div>
+              <div className="mt-2 text-[15px] leading-6 text-[#7b63c6]">
+                Installation cost
+              </div>
             </div>
-            <div className="mt-2 text-[15px] leading-6 text-[#7b63c6]">
-              Upfront cost after incentives
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-medium tracking-[-0.04em] text-[#231f18]">
-              {formatCurrency(benefits20y)}
-            </div>
-            <div className="mt-2 text-[15px] leading-6 text-[#7b63c6]">20 year benefits</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-medium tracking-[-0.04em] text-[#231f18]">
-              {formatCurrency(savings20y)}
-            </div>
-            <div className="mt-2 text-[15px] leading-6 text-[#7b63c6]">
-              Total 20 year savings
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-medium tracking-[-0.04em] text-[#231f18]">
-              {formatNumber(paybackYears)}
-            </div>
-            <div className="mt-2 text-[15px] leading-6 text-[#7b63c6]">Years until payback</div>
-          </div>
-        </div>
 
-        <div className="mt-8 flex justify-center">
-          <button
-            type="button"
-            className="flex items-center gap-2 text-[15px] font-medium text-[#b66a07]"
-          >
-            Show detailed estimates
-            <span className="grid size-6 place-items-center rounded-full border border-[#d8c8b2]">
-              <svg viewBox="0 0 24 24" fill="none" className="size-3.5" aria-hidden>
-                <path
-                  d="M12 5.5v8M7.5 10l4.5 4.5L16.5 10"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </span>
-          </button>
-        </div>
+            <div className="text-center">
+              <div className="text-2xl font-medium tracking-[-0.04em] text-[#231f18]">
+                {formatCurrency(savings20y)}
+              </div>
+              <div className="mt-2 text-[15px] leading-6 text-[#7b63c6]">
+                Total 20 year savings
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-8 grid gap-4 sm:grid-cols-4">
+            <div className="rounded-2xl border border-[#e7dcc7] p-5 text-center">
+              <div className="text-2xl font-medium tracking-[-0.04em] text-[#231f18]">
+                {formatCurrency(0)}
+              </div>
+              <div className="mt-2 text-[15px] leading-6 text-[#7b63c6]">
+                Upfront cost
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[#e7dcc7] p-5 text-center">
+              <div className="text-2xl font-medium tracking-[-0.04em] text-[#231f18]">
+                {formatCurrency(Math.round(upfrontCost * 0.08))}
+              </div>
+              <div className="mt-2 text-[15px] leading-6 text-[#7b63c6]">
+                Estimated annual lease payment
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[#e7dcc7] p-5 text-center">
+              <div className="text-2xl font-medium tracking-[-0.04em] text-[#231f18]">
+                {formatCurrency(savings20y)}
+              </div>
+              <div className="mt-2 text-[15px] leading-6 text-[#7b63c6]">
+                Estimated 20 year net impact
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[#e7dcc7]  p-5 text-center">
+              <div className="text-2xl font-medium tracking-[-0.04em] text-[#231f18]">
+                Fixed term
+              </div>
+              <div className="mt-2 text-[15px] leading-6 text-[#7b63c6]">
+                Predictable payment structure
+              </div>
+            </div>
+          </div>
+        )}
+
+
       </div>
     </div>
   );
@@ -122,40 +126,35 @@ function FinanceTabs({
 
 export function FinanceSection({
   upfrontCost,
-  benefits20y,
   savings20y,
-  paybackYears,
   analysisResult,
 }: {
   upfrontCost: number;
-  benefits20y: number;
   savings20y: number;
-  paybackYears: number;
-  analysisResult?: any;
+  analysisResult?: {
+    metrics?: {
+      netInstallationCost?: number;
+      lifetimeGrossSavings?: number;
+      lifetimeNetProfit?: number;
+      paybackYears?: number;
+    };
+    annualCashFlows?: Array<{
+      grossSavings?: number;
+    }>;
+  } | null;
 }) {
   const title = "Learn how to finance your solar panels";
 
   // Prefer values from analysisResult when available
   const upfront = analysisResult?.metrics?.netInstallationCost ?? upfrontCost;
-  let benefits20 = benefits20y;
-  if (analysisResult?.annualCashFlows) {
-    const rows = analysisResult.annualCashFlows.slice(0, 20);
-    const sum = rows.reduce((s: number, r: any) => s + (Number(r.grossSavings) || 0), 0);
-    benefits20 = Math.round(sum);
-  } else if (analysisResult?.metrics?.lifetimeGrossSavings) {
-    benefits20 = Math.round(analysisResult.metrics.lifetimeGrossSavings);
-  }
   const savings20 = analysisResult?.metrics?.lifetimeNetProfit ?? savings20y;
-  const payback = analysisResult?.metrics?.paybackYears ?? paybackYears;
 
   return (
     <section id="finance" className="mx-auto mt-4 max-w-[1600px] px-4 sm:px-6 lg:px-8">
       <SectionCard title={title}>
         <FinanceTabs
           upfrontCost={upfront}
-          benefits20y={benefits20}
           savings20y={savings20}
-          paybackYears={payback}
         />
       </SectionCard>
     </section>

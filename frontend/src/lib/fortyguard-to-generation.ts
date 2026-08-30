@@ -37,15 +37,15 @@
     estimates.
 
   Transparency and warnings:
-  - All outputs include the values used (system size, PR, peak sun hours) and an
-    `extrapolated` flag plus a `warning` string when the estimate is derived from a
+  - All outputs include the values used (system size, PR, peak sun hours) and a
+    `derived` flag plus a `warning` string when the estimate is derived from a
     single instantaneous GHI sample.
   - For production-grade forecasts, supply either a validated annualGenerationKwh
     from a frontend model (preferred) or provide a full hourly/daily irradiance
     time-series and use a PV performance model (e.g., NREL PVWatts or equivalent).
 */
 
-export type FortyGuardResult = any;
+export type FortyGuardResult = unknown;
 
 export type EstimateOptions = {
   systemCapacityKw?: number; // kW
@@ -173,30 +173,35 @@ export function getPeakSunHoursForState(stateValue?: string): number {
 }
 
 export type EstimateResult = {
+  ghiWattsPerM2: number | null;
   annualIrradianceKwhPerM2: number | null;
   annualGenerationKwh: number | null;
+  annualGenerationFormulaHours: number | null;
+  peakSunHoursPerDayUsed?: number;
   systemCapacityKwUsed?: number;
   performanceRatioUsed?: number;
-  extrapolated: boolean;
+  derived: boolean;
   warning?: string;
 };
 
 function safeNumber(v: unknown): number | null {
-  const n = Number(v as any);
+  const n = Number(v);
   return Number.isFinite(n) ? n : null;
 }
 
-export function estimateAnnualIrradianceKwhPerM2(fg: FortyGuardResult, peakSunHoursPerDay?: number): { value: number | null; extrapolated: boolean; warning?: string } {
+export function estimateAnnualIrradianceKwhPerM2(fg: FortyGuardResult, peakSunHoursPerDay?: number): { value: number | null; ghiWattsPerM2: number | null; annualGenerationFormulaHours: number | null; derived: boolean; warning?: string } {
   // Expect a single numeric GHI value in the FortyGuard result and extrapolate to a year.
   // Use peakSunHoursPerDay (hours/day) as the daily-equivalent hours instead of 24.
   try {
-    const data = fg?.data ?? fg?.result ?? fg;
-    const locations = data?.locations ?? (data?.result && data.result.locations) ?? null;
+    const root = (typeof fg === "object" && fg !== null ? fg : {}) as Record<string, unknown>;
+    const data = ((root.data as Record<string, unknown> | undefined) ?? (root.result as Record<string, unknown> | undefined) ?? root) as Record<string, unknown>;
+    const nestedResult = data.result as Record<string, unknown> | undefined;
+    const locations = (data.locations as unknown[] | undefined) ?? (nestedResult?.locations as unknown[] | undefined) ?? null;
     if (!locations || !Array.isArray(locations) || locations.length === 0) {
-      return { value: null, extrapolated: false, warning: 'No locations found in FortyGuard result' };
+      return { value: null, ghiWattsPerM2: null, annualGenerationFormulaHours: null, derived: false, warning: 'No locations found in FortyGuard result' };
     }
 
-    const loc = locations[0];
+    const loc = (locations[0] ?? {}) as Record<string, unknown>;
 
     const tryNumber = (v: unknown) => {
       const n = safeNumber(v);
@@ -206,32 +211,41 @@ export function estimateAnnualIrradianceKwhPerM2(fg: FortyGuardResult, peakSunHo
     // Look for a single numeric GHI in the response (no arrays)
     let ghi: number | null = null;
     if (loc.solar_irradiance && typeof loc.solar_irradiance === 'object') {
-      ghi = tryNumber(loc.solar_irradiance.ghi) ?? tryNumber(loc.solar_irradiance.dni) ?? tryNumber(loc.solar_irradiance.dhi) ?? null;
-      if (ghi === null && loc.solar_irradiance.clear_sky) {
-        ghi = tryNumber(loc.solar_irradiance.clear_sky.ghi) ?? tryNumber(loc.solar_irradiance.clear_sky.dni) ?? tryNumber(loc.solar_irradiance.clear_sky.dhi) ?? null;
+      const solarIrradiance = loc.solar_irradiance as Record<string, unknown>;
+      ghi = tryNumber(solarIrradiance.ghi) ?? tryNumber(solarIrradiance.dni) ?? tryNumber(solarIrradiance.dhi) ?? null;
+      if (ghi === null && solarIrradiance.clear_sky && typeof solarIrradiance.clear_sky === 'object') {
+        const clearSky = solarIrradiance.clear_sky as Record<string, unknown>;
+        ghi = tryNumber(clearSky.ghi) ?? tryNumber(clearSky.dni) ?? tryNumber(clearSky.dhi) ?? null;
       }
     }
 
     if (ghi === null && loc.parameters && typeof loc.parameters === 'object') {
-      for (const key of Object.keys(loc.parameters)) {
+      const parameters = loc.parameters as Record<string, unknown>;
+      for (const key of Object.keys(parameters)) {
         if (key.toLowerCase().includes('ghi') || key.toLowerCase().includes('global')) {
-          ghi = tryNumber(loc.parameters[key]);
+          ghi = tryNumber(parameters[key]);
           if (ghi !== null) break;
         }
       }
     }
 
     if (ghi === null) {
-      return { value: null, extrapolated: false, warning: 'No numeric GHI value found in FortyGuard result' };
+      return { value: null, ghiWattsPerM2: null, annualGenerationFormulaHours: null, derived: false, warning: 'No numeric GHI value found in FortyGuard result' };
     }
 
     const hoursPerDay = Number.isFinite(Number(peakSunHoursPerDay)) ? Number(peakSunHoursPerDay) : 5.0; // default national average
     const hoursPerYear = hoursPerDay * 365;
     const annualKwhPerM2 = (ghi * hoursPerYear) / 1000; // W/m2 * h -> Wh/m2 -> kWh/m2
 
-    return { value: Number.isFinite(annualKwhPerM2) ? annualKwhPerM2 : null, extrapolated: true, warning: 'Single GHI value extrapolated to annual estimate using peak sun hours' };
+    return {
+      value: Number.isFinite(annualKwhPerM2) ? annualKwhPerM2 : null,
+      ghiWattsPerM2: ghi,
+      annualGenerationFormulaHours: hoursPerYear,
+      derived: true,
+      warning: 'Single GHI value derived into an annual estimate using peak sun hours',
+    };
   } catch (e) {
-    return { value: null, extrapolated: false, warning: String(e) };
+    return { value: null, ghiWattsPerM2: null, annualGenerationFormulaHours: null, derived: false, warning: String(e) };
   }
 }
 
@@ -247,9 +261,12 @@ export function estimateAnnualGenerationKwh(fg: FortyGuardResult, options?: Esti
 
   if (irr.value === null) {
     return {
+      ghiWattsPerM2: irr.ghiWattsPerM2,
       annualIrradianceKwhPerM2: null,
       annualGenerationKwh: null,
-      extrapolated: irr.extrapolated,
+      annualGenerationFormulaHours: irr.annualGenerationFormulaHours,
+      peakSunHoursPerDayUsed: peak,
+      derived: irr.derived,
       warning: irr.warning ?? 'No irradiance available to estimate generation',
     };
   }
@@ -257,11 +274,14 @@ export function estimateAnnualGenerationKwh(fg: FortyGuardResult, options?: Esti
   const annualGeneration = irr.value * systemCapacityKw * performanceRatio;
 
   return {
+    ghiWattsPerM2: irr.ghiWattsPerM2,
     annualIrradianceKwhPerM2: irr.value,
     annualGenerationKwh: Number.isFinite(annualGeneration) ? annualGeneration : null,
+    annualGenerationFormulaHours: irr.annualGenerationFormulaHours,
+    peakSunHoursPerDayUsed: peak,
     systemCapacityKwUsed: systemCapacityKw,
     performanceRatioUsed: performanceRatio,
-    extrapolated: irr.extrapolated,
+    derived: irr.derived,
     warning: irr.warning,
   };
 }

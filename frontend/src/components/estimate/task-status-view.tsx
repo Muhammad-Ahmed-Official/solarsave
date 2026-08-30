@@ -46,6 +46,7 @@ function TaskStatusViewContent({
     setComparisonSeries,
     setAnalysisLoading,
     setStateCode,
+    setGeneratorDiagnostics,
     fortyGuardResult,
   } = session;
   const [view, setView] = useState<EstimateViewState>({ status: "checking", attempt: 1 });
@@ -162,6 +163,8 @@ function TaskStatusViewContent({
           body: JSON.stringify({
             stateCode,
             installationCost: metrics.upfrontCost,
+            monthlyBill: defaultBill,
+            annualConsumptionKwh: defaultBill > 0 ? (defaultBill * 12) / Math.max(0.01, 0.16) : undefined,
             systemCapacityKw: metrics.solarSizeKw,
             performanceRatio: 0.75,
             fortyGuardResult,
@@ -179,6 +182,11 @@ function TaskStatusViewContent({
 
         const result = payload.result ?? null;
         setAnalysisResult(result);
+        setGeneratorDiagnostics(payload.generatorDiagnostics ?? null);
+
+        if (payload.fortyGuardResult) {
+          setFortyGuardResult(payload.fortyGuardResult);
+        }
 
         if (result) {
           const comparisonSeries = buildSolarComparisonSeries({
@@ -201,7 +209,7 @@ function TaskStatusViewContent({
     return () => {
       cancelled = true;
     };
-  }, [location, fortyGuardResult, setAnalysisLoading, setAnalysisResult, setStateCode, view.status]);
+  }, [location, fortyGuardResult, setAnalysisLoading, setAnalysisResult, setComparisonSeries, setFortyGuardResult, setGeneratorDiagnostics, setStateCode, view.status]);
 
   const modalMessage = useMemo(() => {
     if (view.status === "checking") {

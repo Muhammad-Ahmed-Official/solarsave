@@ -2,7 +2,7 @@
 
 import { GeocodedPlace } from "@/lib/geocoding";
 import { Basemap, CONTEXT_STYLES, SATELLITE_STYLE } from "@/lib/map-styles";
-import { setWorkerUrl } from "maplibre-gl";
+import { LngLatBounds, setWorkerUrl } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -25,9 +25,9 @@ const DEFAULT_VIEW = {
   pitch: 0,
   bearing: 0,
 };
-const SELECTED_ZOOM = 17;
+const SELECTED_ZOOM = 18;
 const MAX_ZOOM = 21;
-const SELECTED_PITCH = 60;
+const SELECTION_PADDING = 96;
 
 export function MapComponent({ place }: { place: GeocodedPlace | null }) {
   const mapRef = useRef<MapRef | null>(null);
@@ -49,15 +49,28 @@ export function MapComponent({ place }: { place: GeocodedPlace | null }) {
       typeof place.longitude === "number" &&
       typeof place.latitude === "number"
     ) {
-      map.flyTo({
-        center: [place.longitude, place.latitude],
-        zoom: SELECTED_ZOOM,
-        pitch: SELECTED_PITCH,
-        bearing: -20,
-        duration: 2200,
+      const bounds = new LngLatBounds(
+        [place.longitude, place.latitude],
+        [place.longitude, place.latitude],
+      ).extend([place.longitude - 0.0008, place.latitude - 0.0008]).extend([place.longitude + 0.0008, place.latitude + 0.0008]);
+
+      map.fitBounds(bounds, {
+        padding: SELECTION_PADDING,
+        maxZoom: SELECTED_ZOOM,
+        duration: 1800,
         essential: true,
       });
+      return;
     }
+
+    map.easeTo({
+      center: [DEFAULT_VIEW.longitude, DEFAULT_VIEW.latitude],
+      zoom: DEFAULT_VIEW.zoom,
+      pitch: DEFAULT_VIEW.pitch,
+      bearing: DEFAULT_VIEW.bearing,
+      duration: 1200,
+      essential: true,
+    });
   }, [place, isReady]);
 
   const fit = useCallback(() => {
@@ -70,12 +83,14 @@ export function MapComponent({ place }: { place: GeocodedPlace | null }) {
     ) {
       const lat = place.latitude;
       const lng = place.longitude;
-      const currentZoom = map.getZoom();
-      map.easeTo({ center: [lng, lat], zoom: currentZoom, duration: 600 });
+      const bounds = new LngLatBounds([lng, lat], [lng, lat])
+        .extend([lng - 0.0008, lat - 0.0008])
+        .extend([lng + 0.0008, lat + 0.0008]);
+      map.fitBounds(bounds, { padding: SELECTION_PADDING, maxZoom: SELECTED_ZOOM, duration: 700 });
     } else {
       map.easeTo({ center: [DEFAULT_VIEW.longitude, DEFAULT_VIEW.latitude], zoom: DEFAULT_VIEW.zoom, duration: 600 });
     }
-  }, []);
+  }, [place]);
 
   return (
     <div className="relative w-full h-full">
@@ -107,8 +122,9 @@ export function MapComponent({ place }: { place: GeocodedPlace | null }) {
             anchor="center"
           >
             <div className="relative grid place-items-center">
-              <span className="absolute -inset-3 rounded-full bg-white/80 opacity-80 blur-sm animate-ping" />
-              <div className="relative size-4 rounded-full bg-blue-600 ring-2 ring-white shadow-[0_0_16px_3px_rgba(37,99,235,0.35)]" />
+              <span className="absolute -inset-4 rounded-full bg-white/80 opacity-80 blur-sm animate-ping" />
+              <span className="absolute size-8 rounded-full border-2 border-blue-500/60 bg-blue-500/10" />
+              <div className="relative size-4 rounded-full bg-blue-600 ring-2 ring-white shadow-[0_0_16px_3px_rgba(37,99,235,0.45)]" />
             </div>
           </Marker>
         ) : null}

@@ -14,8 +14,8 @@ export function buildSolarComparisonSeries({
   monthlyBill,
   annualCashFlows,
   installationCost,
+  paybackYear,
   years = 25,
-  annualElectricityInflation = 0.025,
 }: {
   monthlyBill: number;
   annualCashFlows?: Array<{
@@ -31,8 +31,8 @@ export function buildSolarComparisonSeries({
     maintenance?: number;
   }>;
   installationCost: number;
+  paybackYear?: number | null;
   years?: number;
-  annualElectricityInflation?: number;
 }): SolarComparisonSeries {
   const annualBaseBill = Number(monthlyBill ?? 0) * 12;
   const buyUpfront = Number(installationCost ?? 0);
@@ -51,9 +51,9 @@ export function buildSolarComparisonSeries({
         (Number(cash?.energyKwh ?? cash?.solarEnergyKwh ?? annualBaseBill / 12) *
           Number(cash?.pricePerKwh ?? Math.max((annualBaseBill / 12) / Math.max(Number(cash?.energyKwh ?? cash?.solarEnergyKwh ?? 1), 1), 0.12))));
 
-    const annualUtilityCost = annualGridCostFromEngine * Math.pow(1 + annualElectricityInflation, year - 1);
+    const annualUtilityCost = annualGridCostFromEngine;
     const annualLeaseCost = Number(cash?.leaseCost ?? leaseAnnualPayment);
-    const annualBuyCost = Number(cash?.instantInstall ?? buyUpfront / Math.max(years, 1));
+    const annualBuyCost = year === 1 ? Number(cash?.instantInstall ?? buyUpfront) : 0;
 
     cumulativeGrid += annualUtilityCost;
     cumulativeLease += annualLeaseCost;
@@ -67,7 +67,5 @@ export function buildSolarComparisonSeries({
     });
   }
 
-  const paybackYear = points.findIndex((point) => point.year > 0 && point.lease <= point.grid) + 1 || null;
-
-  return { points, paybackYear: paybackYear ? paybackYear : null };
+  return { points, paybackYear: paybackYear ?? null };
 }

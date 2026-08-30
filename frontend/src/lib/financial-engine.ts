@@ -21,6 +21,10 @@ export interface SolarAnalysisInput {
   annualGenerationKwh: number;
   installationCost: number;
   monthlyBill?: number;
+  annualConsumptionKwh?: number;
+  ghiWattsPerM2?: number;
+  peakSunHoursPerDay?: number;
+  annualGenerationFormulaHours?: number;
   projectYears?: number;
   annualDegradation?: number;
   electricityInflation?: number;
@@ -41,6 +45,8 @@ export type AnnualCashFlowRow = {
   gridCost: number;
   leaseCost: number;
   energyKwh?: number;
+  annualConsumptionKwh?: number;
+  annualGenerationKwh?: number;
   maintenanceCost?: number;
 };
 
@@ -213,7 +219,7 @@ function round2(n: number) {
   return Math.round(n * 100) / 100;
 }
 
-function solveIrr(cashFlows: number[], guess = 0.1) {
+function solveIrr(cashFlows: number[]) {
   // Use bisection between -0.999 and 10
   let low = -0.999999;
   let high = 10;
@@ -264,6 +270,12 @@ export function runSolarAnalysis(
   const maintenanceInflation = Number(input.maintenanceInflation ?? 0.025);
   const incentives = Number(input.incentives ?? 0);
   const riskPremium = Number(input.riskPremium ?? 0.02);
+  const annualConsumptionKwhInput = Number(input.annualConsumptionKwh);
+  const annualConsumptionKwh = Number.isFinite(annualConsumptionKwhInput)
+    ? annualConsumptionKwhInput
+    : Number.isFinite(Number(input.monthlyBill))
+      ? (Number(input.monthlyBill) * 12) / Math.max(electricity.dollarsPerKwh, 0.0001)
+      : null;
 
   const E1 = Number(input.annualGenerationKwh);
   const installCost = Number(input.installationCost);
@@ -290,7 +302,7 @@ export function runSolarAnalysis(
     const gross = energy * price;
     const maint = maintenance * Math.pow(1 + maintenanceInflation, t - 1);
     const cf = gross - maint;
-    const gridCost = (Number(input.monthlyBill ?? (gross / Math.max(energy || 1, 1))) * 12) * Math.pow(1 + inflation, t - 1);
+    const gridCost = (annualConsumptionKwh ?? 0) * price;
     const leaseCost = (installCost * 0.08) || 0;
     const instantInstall = netInstallationCost;
 
@@ -305,6 +317,8 @@ export function runSolarAnalysis(
       gridCost: round2(gridCost),
       leaseCost: round2(leaseCost),
       energyKwh: round2(energy),
+      annualConsumptionKwh: annualConsumptionKwh !== null ? round2(annualConsumptionKwh) : undefined,
+      annualGenerationKwh: round2(energy),
       maintenanceCost: round2(maint),
     });
 
@@ -339,6 +353,11 @@ export function runSolarAnalysis(
       incentives,
       riskPremium,
       discountRate,
+      annualConsumptionKwh,
+      annualGenerationKwh: E1,
+      ghiWattsPerM2: Number.isFinite(Number(input.ghiWattsPerM2)) ? Number(input.ghiWattsPerM2) : null,
+      peakSunHoursPerDay: Number.isFinite(Number(input.peakSunHoursPerDay)) ? Number(input.peakSunHoursPerDay) : null,
+      annualGenerationFormulaHours: Number.isFinite(Number(input.annualGenerationFormulaHours)) ? Number(input.annualGenerationFormulaHours) : null,
     },
     metrics: {
       netInstallationCost: round2(netInstallationCost),
@@ -351,6 +370,11 @@ export function runSolarAnalysis(
       lifetimeOperatingSavings: round2(lifetimeOperatingSavings),
       lifetimeNetProfit: round2(lifetimeNetProfit),
       financiallyAttractive: npv > 0,
+      annualConsumptionKwh: annualConsumptionKwh !== null ? round2(annualConsumptionKwh) : 0,
+      annualGenerationKwh: round2(E1),
+      ghiWattsPerM2: Number.isFinite(Number(input.ghiWattsPerM2)) ? round2(Number(input.ghiWattsPerM2)) : 0,
+      peakSunHoursPerDay: Number.isFinite(Number(input.peakSunHoursPerDay)) ? round2(Number(input.peakSunHoursPerDay)) : 0,
+      annualGenerationFormulaHours: Number.isFinite(Number(input.annualGenerationFormulaHours)) ? round2(Number(input.annualGenerationFormulaHours)) : 0,
     },
     annualCashFlows: annualRows,
   };

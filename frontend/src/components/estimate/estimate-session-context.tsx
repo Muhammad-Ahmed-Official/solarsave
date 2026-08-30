@@ -10,6 +10,7 @@ export type EstimateSessionValue = {
   generatorEstimate: any;
   analysisResult: any;
   comparisonSeries: SolarComparisonSeries | null;
+  generatorDiagnostics: any;
   analysisLoading: boolean;
   setActivityId: (value: string | null) => void;
   setStateCode: (value: string | null) => void;
@@ -17,6 +18,7 @@ export type EstimateSessionValue = {
   setGeneratorEstimate: (value: any) => void;
   setAnalysisResult: (value: any) => void;
   setComparisonSeries: (value: SolarComparisonSeries | null) => void;
+  setGeneratorDiagnostics: (value: any) => void;
   setAnalysisLoading: (value: boolean) => void;
 };
 
@@ -29,6 +31,7 @@ export function EstimateSessionProvider({ children }: { children: ReactNode }) {
   const [generatorEstimate, setGeneratorEstimate] = useState<any>(null);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [comparisonSeries, setComparisonSeries] = useState<SolarComparisonSeries | null>(null);
+  const [generatorDiagnostics, setGeneratorDiagnostics] = useState<any>(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
 
   const value = useMemo<EstimateSessionValue>(
@@ -39,6 +42,7 @@ export function EstimateSessionProvider({ children }: { children: ReactNode }) {
       generatorEstimate,
       analysisResult,
       comparisonSeries,
+      generatorDiagnostics,
       analysisLoading,
       setActivityId,
       setStateCode,
@@ -46,9 +50,10 @@ export function EstimateSessionProvider({ children }: { children: ReactNode }) {
       setGeneratorEstimate,
       setAnalysisResult,
       setComparisonSeries,
+      setGeneratorDiagnostics,
       setAnalysisLoading,
     }),
-    [activityId, stateCode, fortyGuardResult, generatorEstimate, analysisResult, comparisonSeries, analysisLoading],
+    [activityId, stateCode, fortyGuardResult, generatorEstimate, analysisResult, comparisonSeries, generatorDiagnostics, analysisLoading],
   );
 
   return (

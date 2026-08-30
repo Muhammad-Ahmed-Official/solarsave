@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-function InfoIcon() {
+export function InfoIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="size-4" aria-hidden>
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.6" />
@@ -32,7 +32,7 @@ export function SectionCard({
             {title}
           </h2>
           {showInfo ? (
-            <div className="group relative text-[#948a77]">
+            <div className="group relative text-[#948a77] cursor-default">
               <span aria-label={infoText || "Session information"}>
                 <InfoIcon />
               </span>

@@ -45,13 +45,13 @@ function InvoicePdf({ data }: { data: any }) {
 
         <View style={styles.section}>
           <Text style={styles.label}>FortyGuard GHI</Text>
-          <Text style={styles.value}>{formatNumber(fg?.data?.locations?.[0]?.solar_irradiance?.ghi ?? fg?.data?.locations?.[0]?.parameters?.ghi ?? fg?.ghi ?? null)} W/m²</Text>
+          <Text style={styles.value}>{formatNumber(est?.ghiWattsPerM2 ?? fg?.data?.locations?.[0]?.solar_irradiance?.ghi ?? fg?.data?.locations?.[0]?.parameters?.ghi ?? fg?.ghi ?? null)} W/m²</Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.label}>Calculation details</Text>
-          <Text style={styles.value}>Peak sun hours used: {formatNumber(data.peakSunHours)}</Text>
-          <Text style={styles.value}>Hours / year: {formatNumber(data.peakSunHours * 365)}</Text>
+          <Text style={styles.value}>Peak sun hours used: {formatNumber(est?.peakSunHoursPerDayUsed ?? data.peakSunHours)}</Text>
+          <Text style={styles.value}>Hours / year: {formatNumber(est?.annualGenerationFormulaHours ?? (data.peakSunHours * 365))}</Text>
           <Text style={styles.value}>Annual irradiance (kWh/m²/yr): {formatNumber(est?.annualIrradianceKwhPerM2)}</Text>
           <Text style={styles.value}>System capacity used (kW): {formatNumber(est?.systemCapacityKwUsed)}</Text>
           <Text style={styles.value}>Performance ratio used: {formatNumber(est?.performanceRatioUsed)}</Text>
@@ -129,8 +129,9 @@ export default function DetailsPage() {
       <div className="mt-4 space-y-2">
         <div>Activity ID: {activityId}</div>
         <div>Place: {place?.displayName ?? place?.title}</div>
-        <div>GHI sample: {String(fgResult?.data?.locations?.[0]?.solar_irradiance?.ghi ?? fgResult?.data?.locations?.[0]?.parameters?.ghi ?? '—')}</div>
-        <div>Peak sun hours used: {peakSunHours}</div>
+        <div>GHI sample: {String(generatorEstimate?.ghiWattsPerM2 ?? fgResult?.data?.locations?.[0]?.solar_irradiance?.ghi ?? fgResult?.data?.locations?.[0]?.parameters?.ghi ?? '—')}</div>
+        <div>Peak sun hours used: {formatNumber(generatorEstimate?.peakSunHoursPerDayUsed ?? peakSunHours)}</div>
+        <div>Hours / year used: {formatNumber(generatorEstimate?.annualGenerationFormulaHours ?? (peakSunHours * 365))}</div>
         <div>Annual irradiance (kWh/m²/yr): {formatNumber(generatorEstimate?.annualIrradianceKwhPerM2)}</div>
         <div>Estimated annual generation (kWh/yr): {formatNumber(generatorEstimate?.annualGenerationKwh)}</div>
       </div>
