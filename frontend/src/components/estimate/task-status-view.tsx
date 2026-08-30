@@ -164,7 +164,6 @@ function TaskStatusViewContent({
             stateCode,
             installationCost: metrics.upfrontCost,
             monthlyBill: defaultBill,
-            annualConsumptionKwh: defaultBill > 0 ? (defaultBill * 12) / Math.max(0.01, 0.16) : undefined,
             systemCapacityKw: metrics.solarSizeKw,
             performanceRatio: 0.75,
             fortyGuardResult,
@@ -193,6 +192,7 @@ function TaskStatusViewContent({
             monthlyBill: getDefaultBill(location),
             annualCashFlows: result.annualCashFlows,
             installationCost: Number(result.metrics?.netInstallationCost ?? metrics.upfrontCost),
+            paybackYear: result.metrics?.paybackYears ?? null,
           });
           setComparisonSeries(comparisonSeries);
         }
